@@ -1,6 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { customBaseQuery } from "./customBaseQuery";
 import { QUERY_TAGS } from "./tagConstants";
+import { setSuccess } from "./toastSlice";
 
 export interface Employee {
   id: number;
@@ -16,8 +17,11 @@ export const employeesApi = createApi({
   tagTypes: [QUERY_TAGS.EMPLOYEES],
   endpoints: (builder) => ({
     getEmployees: builder.query<Employee[], number>({
-      query: (companyId) => `/employees/${companyId}`,
-      providesTags: (result, error, companyId) => [
+      query: (companyId) => ({
+        url: "/employees",
+        params: { companyId },
+      }),
+      providesTags: (_result, _error, companyId) => [
         { type: QUERY_TAGS.EMPLOYEES, id: companyId },
       ],
     }),
@@ -31,9 +35,49 @@ export const employeesApi = createApi({
         method: "POST",
         body: employee,
       }),
-      invalidatesTags: (result, error, { companyId }) => [
-        { type: QUERY_TAGS.EMPLOYEES, id: companyId },
-      ],
+
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: newEmployee } = await queryFulfilled;
+
+          dispatch(
+            employeesApi.util.updateQueryData(
+              "getEmployees",
+              newEmployee.companyId,
+              (draft) => {
+                draft.unshift(newEmployee);
+              }
+            )
+          );
+          dispatch(setSuccess("Employee created successfully!"));
+        } catch {}
+      },
+    }),
+    updateEmployee: builder.mutation<
+      Employee,
+      Omit<Employee, "email"> & { companyId: number }
+    >({
+      query: ({ id, ...patch }) => ({
+        url: `/employees/${id}`,
+        method: "PUT",
+        body: patch,
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: updatedEmployee } = await queryFulfilled;
+          dispatch(
+            employeesApi.util.updateQueryData(
+              "getEmployees",
+              updatedEmployee.companyId,
+              (draft: Employee[]) => {
+                const idx = draft.findIndex((e) => e.id === updatedEmployee.id);
+                if (idx !== -1) draft[idx] = updatedEmployee;
+              }
+            )
+          );
+          dispatch(setSuccess("Employee updated successfully!"));
+        } catch {}
+      },
     }),
     deleteEmployee: builder.mutation<
       { success: boolean },
@@ -43,7 +87,7 @@ export const employeesApi = createApi({
         url: `/employees/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, { companyId }) => [
+      invalidatesTags: (_result, _error, { companyId }) => [
         { type: QUERY_TAGS.EMPLOYEES, id: companyId },
       ],
     }),
@@ -53,5 +97,6 @@ export const employeesApi = createApi({
 export const {
   useGetEmployeesQuery,
   useCreateEmployeeMutation,
+  useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,
 } = employeesApi;

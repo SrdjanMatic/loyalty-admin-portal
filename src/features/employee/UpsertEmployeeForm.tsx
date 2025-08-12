@@ -1,9 +1,14 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useCreateEmployeeMutation } from "../../reducer/employeeApi";
+import {
+  Employee,
+  useCreateEmployeeMutation,
+  useUpdateEmployeeMutation,
+} from "../../reducer/employeeApi";
 
-interface CreateEmployeeFormProps {
+interface UpsertEmployeeFormProps {
+  employee?: Employee | null;
   companyId: number;
   onClose?: () => void;
 }
@@ -22,27 +27,38 @@ const validationSchema = Yup.object().shape({
     .required("Email is required"),
 });
 
-export const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
+export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
+  employee = null,
   companyId,
   onClose,
 }) => {
   const [createEmployee] = useCreateEmployeeMutation();
+  const [updateEmployee] = useUpdateEmployeeMutation();
+
+  const isEdit = !!employee;
 
   const formik = useFormik<FormState>({
     initialValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
+      firstName: employee?.firstName || "",
+      lastName: employee?.lastName || "",
+      email: employee?.email || "",
     },
+    enableReinitialize: true,
     validationSchema,
     onSubmit: async (values, helpers) => {
       try {
-        await createEmployee({ ...values, companyId }).unwrap();
+        if (isEdit && employee) {
+          await updateEmployee({
+            id: employee.id,
+            companyId,
+            ...values,
+          }).unwrap();
+        } else {
+          await createEmployee({ ...values, companyId }).unwrap();
+        }
         helpers.resetForm();
         onClose?.();
-      } catch (_) {
-        // error handled by RTK Query’s `error`
-      }
+      } catch (_) {}
     },
   });
 
@@ -92,7 +108,7 @@ export const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
         </button>
 
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          Add Employee
+          {isEdit ? "Update Employee" : "Add Employee"}
         </h2>
 
         <div style={{ marginBottom: 20 }}>
@@ -174,6 +190,7 @@ export const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
               borderRadius: 4,
               fontSize: 14,
             }}
+            disabled={isEdit} // Prevent editing email on update
           />
           {formik.touched.email && formik.errors.email && (
             <div style={{ color: "red", marginTop: 6, fontSize: 12 }}>
@@ -210,7 +227,13 @@ export const CreateEmployeeForm: React.FC<CreateEmployeeFormProps> = ({
               fontWeight: 500,
             }}
           >
-            {formik.isSubmitting ? "Saving..." : "Save"}
+            {formik.isSubmitting
+              ? isEdit
+                ? "Updating..."
+                : "Saving..."
+              : isEdit
+              ? "Update"
+              : "Save"}
           </button>
         </div>
       </form>

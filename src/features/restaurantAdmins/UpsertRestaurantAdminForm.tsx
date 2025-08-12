@@ -1,52 +1,61 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useGetRestaurantsQuery } from "../../reducer/restaurantsApi";
-import { useCreateVipRestaurantMutation } from "../../reducer/vipRestaurantsApi";
+import {
+  useCreateRestaurantAdminMutation,
+  useUpdateRestaurantAdminMutation,
+  type RestaurantAdmin,
+} from "../../reducer/restaurantAdminApi.ts";
 
-interface CreateVipRestaurantFormProps {
+interface UpsertRestaurantAdminFormProps {
   onClose?: () => void;
+  admin?: RestaurantAdmin | null;
 }
 
 interface FormState {
-  discount: number | string;
-  backgroundImage: string;
-  restaurantId: number | "";
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
 }
 
 const validationSchema = Yup.object().shape({
-  restaurantId: Yup.number()
-    .typeError("Restaurant is required")
-    .required("Restaurant is required"),
-  discount: Yup.number()
-    .typeError("Discount must be a number")
-    .required("Discount is required")
-    .min(0, "Discount cannot be negative"),
-  backgroundImage: Yup.string().required("Background Image URL is required"),
+  username: Yup.string().required("Username is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  firstName: Yup.string().required("First name is required"),
+  lastName: Yup.string().required("Last name is required"),
 });
 
-export const CreateVipRestaurantForm: React.FC<
-  CreateVipRestaurantFormProps
-> = ({ onClose }) => {
-  const { data: restaurants = [], isLoading: isRestaurantsLoading } =
-    useGetRestaurantsQuery();
-  const [createVipRestaurant, { isLoading }] = useCreateVipRestaurantMutation();
+export const UpsertRestaurantAdminForm: React.FC<
+  UpsertRestaurantAdminFormProps
+> = ({ onClose, admin = null }) => {
+  const [createRestaurantAdmin, { isLoading: isCreating }] =
+    useCreateRestaurantAdminMutation();
+  const [updateRestaurantAdmin, { isLoading: isUpdating }] =
+    useUpdateRestaurantAdminMutation();
+
+  const isEdit = !!admin;
 
   const formik = useFormik<FormState>({
     initialValues: {
-      discount: "",
-      backgroundImage: "",
-      restaurantId: "",
+      username: admin?.username ?? "",
+      email: admin?.email ?? "",
+      firstName: admin?.firstName ?? "",
+      lastName: admin?.lastName ?? "",
     },
+    enableReinitialize: true,
     validationSchema,
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       setSubmitting(true);
       try {
-        await createVipRestaurant({
-          ...values,
-          discount: Number(values.discount),
-          restaurantId: Number(values.restaurantId),
-        }).unwrap();
+        if (isEdit && admin) {
+          await updateRestaurantAdmin({
+            id: admin.keycloakId,
+            ...values,
+          }).unwrap();
+        } else {
+          await createRestaurantAdmin(values).unwrap();
+        }
         resetForm();
         if (onClose) onClose();
       } finally {
@@ -101,90 +110,56 @@ export const CreateVipRestaurantForm: React.FC<
         </button>
 
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          Add VIP Restaurant
+          {isEdit ? "Update Restaurant Admin" : "Add Restaurant Admin"}
         </h2>
 
+        {/* Username */}
         <div style={{ marginBottom: 20 }}>
           <label
-            htmlFor="restaurantId"
+            htmlFor="username"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Restaurant
-          </label>
-          <select
-            id="restaurantId"
-            name="restaurantId"
-            value={formik.values.restaurantId}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              border: "1px solid #ccc",
-              borderRadius: 4,
-              fontSize: 14,
-              boxSizing: "border-box",
-            }}
-            disabled={isRestaurantsLoading}
-          >
-            <option value="">Select Restaurant</option>
-            {restaurants.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name}
-              </option>
-            ))}
-          </select>
-          {formik.touched.restaurantId && formik.errors.restaurantId && (
-            <div style={{ color: "red", marginTop: 6, fontSize: 12 }}>
-              {formik.errors.restaurantId}
-            </div>
-          )}
-        </div>
-
-        <div style={{ marginBottom: 20 }}>
-          <label
-            htmlFor="discount"
-            style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
-          >
-            Discount (%)
+            Username
           </label>
           <input
-            id="discount"
-            name="discount"
-            type="number"
-            placeholder="Enter discount"
-            value={formik.values.discount}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              border: "1px solid #ccc",
-              borderRadius: 4,
-              fontSize: 14,
-              boxSizing: "border-box",
-            }}
-          />
-          {formik.touched.discount && formik.errors.discount && (
-            <div style={{ color: "red", marginTop: 6, fontSize: 12 }}>
-              {formik.errors.discount}
-            </div>
-          )}
-        </div>
-
-        <div style={{ marginBottom: 20 }}>
-          <label
-            htmlFor="backgroundImage"
-            style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
-          >
-            Background Image URL
-          </label>
-          <input
-            id="backgroundImage"
-            name="backgroundImage"
+            id="username"
+            name="username"
             type="text"
-            placeholder="Enter image URL"
-            value={formik.values.backgroundImage}
+            placeholder="Enter username"
+            value={formik.values.username}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{
+              width: "100%",
+              padding: "10px 12px",
+              border: "1px solid #ccc",
+              borderRadius: 4,
+              fontSize: 14,
+              boxSizing: "border-box",
+            }}
+            disabled={isEdit} // Prevent username change on update
+          />
+          {formik.touched.username && formik.errors.username && (
+            <div style={{ color: "red", marginTop: 6, fontSize: 12 }}>
+              {formik.errors.username}
+            </div>
+          )}
+        </div>
+
+        {/* Email */}
+        <div style={{ marginBottom: 20 }}>
+          <label
+            htmlFor="email"
+            style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
+          >
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Enter email"
+            value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             style={{
@@ -196,9 +171,73 @@ export const CreateVipRestaurantForm: React.FC<
               boxSizing: "border-box",
             }}
           />
-          {formik.touched.backgroundImage && formik.errors.backgroundImage && (
+          {formik.touched.email && formik.errors.email && (
             <div style={{ color: "red", marginTop: 6, fontSize: 12 }}>
-              {formik.errors.backgroundImage}
+              {formik.errors.email}
+            </div>
+          )}
+        </div>
+
+        {/* First Name */}
+        <div style={{ marginBottom: 20 }}>
+          <label
+            htmlFor="firstName"
+            style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
+          >
+            First Name
+          </label>
+          <input
+            id="firstName"
+            name="firstName"
+            type="text"
+            placeholder="Enter first name"
+            value={formik.values.firstName}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{
+              width: "100%",
+              padding: "10px 12px",
+              border: "1px solid #ccc",
+              borderRadius: 4,
+              fontSize: 14,
+              boxSizing: "border-box",
+            }}
+          />
+          {formik.touched.firstName && formik.errors.firstName && (
+            <div style={{ color: "red", marginTop: 6, fontSize: 12 }}>
+              {formik.errors.firstName}
+            </div>
+          )}
+        </div>
+
+        {/* Last Name */}
+        <div style={{ marginBottom: 20 }}>
+          <label
+            htmlFor="lastName"
+            style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
+          >
+            Last Name
+          </label>
+          <input
+            id="lastName"
+            name="lastName"
+            type="text"
+            placeholder="Enter last name"
+            value={formik.values.lastName}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{
+              width: "100%",
+              padding: "10px 12px",
+              border: "1px solid #ccc",
+              borderRadius: 4,
+              fontSize: 14,
+              boxSizing: "border-box",
+            }}
+          />
+          {formik.touched.lastName && formik.errors.lastName && (
+            <div style={{ color: "red", marginTop: 6, fontSize: 12 }}>
+              {formik.errors.lastName}
             </div>
           )}
         </div>
@@ -220,7 +259,7 @@ export const CreateVipRestaurantForm: React.FC<
           </button>
           <button
             type="submit"
-            disabled={formik.isSubmitting || isLoading}
+            disabled={formik.isSubmitting || isCreating || isUpdating}
             style={{
               padding: "10px 20px",
               background: "#23272f",
@@ -231,7 +270,13 @@ export const CreateVipRestaurantForm: React.FC<
               fontWeight: 500,
             }}
           >
-            {formik.isSubmitting || isLoading ? "Saving..." : "Save"}
+            {formik.isSubmitting || isCreating || isUpdating
+              ? isEdit
+                ? "Updating..."
+                : "Saving..."
+              : isEdit
+              ? "Update"
+              : "Save"}
           </button>
         </div>
       </form>

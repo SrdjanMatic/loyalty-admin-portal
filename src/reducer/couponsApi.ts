@@ -1,13 +1,20 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { customBaseQuery } from "./customBaseQuery";
 import { QUERY_TAGS } from "./tagConstants";
+import { setSuccess } from "./toastSlice";
+
+export enum CouponLevel {
+  STANDARD = "STANDARD",
+  VIP = "VIP",
+  PREMIUM = "PREMIUM",
+}
 
 export interface Coupon {
-  id?: number;
+  id: number;
   name: string;
   description: string;
   points: number;
-  level: string; // "STANDARD" | "PREMIUM" | "VIP"
+  level: CouponLevel;
   restaurantId: number;
 }
 
@@ -17,7 +24,61 @@ export const couponsApi = createApi({
   tagTypes: [QUERY_TAGS.COUPONS],
   endpoints: (builder) => ({
     getCoupons: builder.query<Coupon[], number>({
-      query: (restaurantId) => `/coupons/${restaurantId}`,
+      query: (restaurantId) => ({
+        url: `/coupons`,
+        params: { restaurantId },
+      }),
+    }),
+    updateCoupon: builder.mutation<
+      Coupon,
+      { id: number } & Partial<Omit<Coupon, "id">>
+    >({
+      query: ({ id, ...patch }) => ({
+        url: `/coupons/${id}`,
+        method: "PUT",
+        body: patch,
+      }),
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: updatedCoupon } = await queryFulfilled;
+          dispatch(
+            couponsApi.util.updateQueryData(
+              "getCoupons",
+              updatedCoupon.restaurantId,
+              (draft: Coupon[]) => {
+                const idx = draft.findIndex((c) => c.id === id);
+                if (idx !== -1) draft[idx] = updatedCoupon;
+              }
+            )
+          );
+          dispatch(setSuccess("Coupon updated successfully!"));
+        } catch {}
+      },
+    }),
+    deleteCoupon: builder.mutation<
+      { success: boolean },
+      { id: number; restaurantId: number }
+    >({
+      query: ({ id }) => ({
+        url: `/coupons/${id}`,
+        method: "DELETE",
+      }),
+      async onQueryStarted({ id, restaurantId }, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            couponsApi.util.updateQueryData(
+              "getCoupons",
+              restaurantId,
+              (draft: Coupon[]) => {
+                const idx = draft.findIndex((c) => c.id === id);
+                if (idx !== -1) draft.splice(idx, 1);
+              }
+            )
+          );
+          dispatch(setSuccess("Coupon deleted successfully!")); // <-- fixed message
+        } catch {}
+      },
     }),
     createCoupon: builder.mutation<Coupon, Omit<Coupon, "id">>({
       query: (coupon) => ({
@@ -32,16 +93,22 @@ export const couponsApi = createApi({
           dispatch(
             couponsApi.util.updateQueryData(
               "getCoupons",
-              newCoupon.restaurant.id,
+              newCoupon.restaurantId,
               (draft: Coupon[]) => {
                 draft.unshift(newCoupon);
               }
             )
           );
+          dispatch(setSuccess("Coupon created successfully!"));
         } catch {}
       },
     }),
   }),
 });
 
-export const { useGetCouponsQuery, useCreateCouponMutation } = couponsApi;
+export const {
+  useGetCouponsQuery,
+  useUpdateCouponMutation,
+  useDeleteCouponMutation,
+  useCreateCouponMutation,
+} = couponsApi;

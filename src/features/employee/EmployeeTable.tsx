@@ -1,25 +1,29 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
-import { CreateEmployeeForm } from "./CreateEmployeeForm.tsx";
+import { UpsertEmployeeForm } from "./UpsertEmployeeForm.tsx";
 import {
   useGetEmployeesQuery,
   useDeleteEmployeeMutation,
   type Employee,
 } from "../../reducer/employeeApi.ts";
 import { ConfirmationModal } from "../../common/ConfirmationModal.tsx";
-import { MaterialReactTable, type MRT_ColumnDef } from "material-react-table";
+import { MaterialReactTable } from "material-react-table";
+import MenuItem from "@mui/material/MenuItem";
+import { employeeTableColumns } from "./EmployeeTableColumns.tsx";
 
 const EmployeesTable: React.FC = () => {
   const { companyId } = useParams<{ companyId: string }>();
   const numericCompanyId = Number(companyId);
 
-  const { data: employees, status } = useGetEmployeesQuery(numericCompanyId, {
+  const {
+    data: employees,
+    status,
+    error,
+  } = useGetEmployeesQuery(numericCompanyId, {
     skip: !companyId,
   });
-
   const [deleteEmployee, { isLoading: isDeleting }] =
     useDeleteEmployeeMutation();
-
   const [showForm, setShowForm] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null
@@ -41,49 +45,34 @@ const EmployeesTable: React.FC = () => {
     }
   };
 
-  if (status === "pending")
-    return <div style={{ margin: 32 }}>Loading employees...</div>;
+  const handleUpdate = useCallback(
+    (employee: Employee, closeMenu: () => void) => {
+      setSelectedEmployee(employee);
+      setShowForm(true);
+      closeMenu();
+    },
+    []
+  );
 
-  const columns: MRT_ColumnDef<Employee>[] = [
-    {
-      accessorKey: "email",
-      header: "Email",
+  const handleDelete = useCallback(
+    (employee: Employee, closeMenu: () => void) => {
+      setSelectedEmployee(employee);
+      setConfirmOpen(true);
+      closeMenu();
     },
-    {
-      accessorKey: "firstName",
-      header: "First name",
-    },
-    {
-      accessorKey: "lastName",
-      header: "Last name",
-    },
-    {
-      accessorKey: "actions",
-      header: "Actions",
-      Cell: ({ row }) => (
-        <button
-          onClick={() => {
-            setSelectedEmployee(row.original);
-            setConfirmOpen(true);
-          }}
-          disabled={isDeleting}
-          style={{
-            background: "#f44336",
-            color: "#fff",
-            border: "none",
-            borderRadius: 4,
-            padding: "4px 12px",
-            cursor: "pointer",
-            opacity: isDeleting ? 0.6 : 1,
-          }}
-        >
-          {isDeleting ? "Deleting..." : "Delete"}
-        </button>
-      ),
-      enableSorting: false,
-      enableColumnFilter: false,
-    },
-  ];
+    []
+  );
+
+  if (status === "pending") {
+    return <div style={{ margin: 32 }}>Loading employees...</div>;
+  }
+  if (error) {
+    return (
+      <div style={{ margin: 32, color: "red" }}>
+        Failed to load employees. Please try again later.
+      </div>
+    );
+  }
 
   return (
     <div style={{ margin: 32 }}>
@@ -96,7 +85,10 @@ const EmployeesTable: React.FC = () => {
       >
         <h2>Employees</h2>
         <button
-          onClick={() => setShowForm((v) => !v)}
+          onClick={() => {
+            setSelectedEmployee(null);
+            setShowForm(true);
+          }}
           style={{
             padding: "8px 16px",
             background: "#23272f",
@@ -109,14 +101,15 @@ const EmployeesTable: React.FC = () => {
         </button>
       </div>
       {showForm && (
-        <CreateEmployeeForm
+        <UpsertEmployeeForm
           onClose={() => setShowForm(false)}
           companyId={numericCompanyId}
+          employee={selectedEmployee}
         />
       )}
       <div style={{ marginTop: 24 }}>
         <MaterialReactTable
-          columns={columns}
+          columns={employeeTableColumns}
           data={employees ?? []}
           enableColumnActions={false}
           enableColumnFilters={true}
@@ -126,6 +119,24 @@ const EmployeesTable: React.FC = () => {
             elevation: 0,
             sx: { borderRadius: 2 },
           }}
+          enableRowActions={true}
+          positionActionsColumn="last"
+          renderRowActionMenuItems={({ row, closeMenu }) => [
+            <MenuItem
+              key="update"
+              onClick={() => handleUpdate(row.original, closeMenu)}
+            >
+              Update
+            </MenuItem>,
+            <MenuItem
+              key="delete"
+              onClick={() => handleDelete(row.original, closeMenu)}
+              disabled={isDeleting}
+              sx={{ color: "#f44336" }}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </MenuItem>,
+          ]}
         />
       </div>
       <ConfirmationModal

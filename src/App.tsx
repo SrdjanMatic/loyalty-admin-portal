@@ -16,6 +16,7 @@ import EmployeesTable from "./features/employee/EmployeeTable.tsx";
 import VipRestaurantsTable from "./features/restaurants/VipRestaurantsTable.tsx";
 import NotificationTable from "./features/notification/NotificationTable.tsx";
 import RestaurantAdminTable from "./features/restaurantAdmins/RestaurantAdminTable.tsx";
+import { ToastSnackbar } from "./features/errors/ToastSnackbar.tsx";
 
 const App: React.FC = () => {
   const { keycloak, initialized } = useKeycloak();
@@ -54,6 +55,7 @@ const App: React.FC = () => {
 
   return (
     <Router>
+      <ToastSnackbar />
       <Sidebar />
       <div
         style={{

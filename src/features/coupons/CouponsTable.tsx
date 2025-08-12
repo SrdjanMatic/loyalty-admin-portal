@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { CreateCouponForm } from "./CreateCouponForm.tsx";
+import { UpsertCouponForm } from "./UpsertCouponForm.tsx";
 import { EditCouponLimit } from "./EditCouponLimit.tsx";
-import { useGetCouponsQuery, type Coupon } from "../../reducer/couponsApi.ts";
+import {
+  useGetCouponsQuery,
+  type Coupon,
+  useDeleteCouponMutation,
+} from "../../reducer/couponsApi.ts";
 import {
   useGetCouponLevelQuery,
   useUpdateCouponLimitMutation,
 } from "../../reducer/restaurantsApi.ts";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 interface TableCellProps {
   children: React.ReactNode;
@@ -50,9 +57,15 @@ const CouponsTable: React.FC = () => {
   } = useGetCouponLevelQuery(numericRestaurantId);
 
   const [updateCouponLimit] = useUpdateCouponLimitMutation();
+  const [deleteCoupon, { isLoading: isDeleting }] = useDeleteCouponMutation();
 
   const [showForm, setShowForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+
+  // For 3-dots menu
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [menuCouponId, setMenuCouponId] = useState<number | null>(null);
 
   // Group coupons by level
   const couponsByLevel: Record<string, Coupon[]> = {
@@ -135,6 +148,37 @@ const CouponsTable: React.FC = () => {
     setShowEditForm(false);
   };
 
+  // Handlers for 3-dots menu
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    coupon: Coupon
+  ) => {
+    setAnchorEl(event.currentTarget);
+    setMenuCouponId(coupon.id);
+    setSelectedCoupon(coupon);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setMenuCouponId(null);
+    setSelectedCoupon(null);
+  };
+
+  const handleUpdate = useCallback(() => {
+    setShowForm(true);
+    setAnchorEl(null);
+  }, []);
+
+  const handleDelete = useCallback(async () => {
+    if (!selectedCoupon) return;
+    await deleteCoupon({
+      id: selectedCoupon.id,
+      restaurantId: selectedCoupon.restaurantId,
+    }).unwrap();
+    setAnchorEl(null);
+    setSelectedCoupon(null);
+  }, [deleteCoupon, selectedCoupon]);
+
   if (isLoading) return <div style={{ margin: 32 }}>Loading coupons...</div>;
   if (isError)
     return (
@@ -164,9 +208,10 @@ const CouponsTable: React.FC = () => {
           Add Coupon
         </button>
         {showForm && (
-          <CreateCouponForm
+          <UpsertCouponForm
             onClose={() => setShowForm(false)}
             restaurantId={numericRestaurantId}
+            coupon={selectedCoupon && showForm ? selectedCoupon : undefined}
           />
         )}
         {showEditForm && fetchedCouponLevel && (
@@ -229,18 +274,50 @@ const CouponsTable: React.FC = () => {
                     <TableCell>{c.points}</TableCell>
                     <TableCell>
                       <button
-                        // onClick={() => handleDeleteCoupon(c.id)}
+                        aria-label="More actions"
                         style={{
-                          background: "#f44336",
-                          color: "#fff",
+                          background: "none",
                           border: "none",
-                          borderRadius: 4,
-                          padding: "4px 12px",
                           cursor: "pointer",
+                          padding: 0,
                         }}
+                        onClick={(e) => handleMenuOpen(e, c)}
                       >
-                        Delete
+                        <MoreVertIcon />
                       </button>
+                      {menuCouponId === c.id && (
+                        <Menu
+                          anchorEl={anchorEl}
+                          open={Boolean(anchorEl)}
+                          onClose={handleMenuClose}
+                          anchorOrigin={{
+                            vertical: "bottom",
+                            horizontal: "left",
+                          }}
+                          transformOrigin={{
+                            vertical: "top",
+                            horizontal: "left",
+                          }}
+                        >
+                          <MenuItem
+                            onClick={() => {
+                              setShowForm(true);
+                              setAnchorEl(null);
+                            }}
+                            aria-label="Update Coupon"
+                          >
+                            Update
+                          </MenuItem>
+                          <MenuItem
+                            onClick={handleDelete}
+                            aria-label="Delete Coupon"
+                            sx={{ color: "#f44336" }}
+                            disabled={isDeleting}
+                          >
+                            {isDeleting ? "Deleting..." : "Delete"}
+                          </MenuItem>
+                        </Menu>
+                      )}
                     </TableCell>
                   </tr>
                 ))
@@ -249,6 +326,17 @@ const CouponsTable: React.FC = () => {
           ))}
         </tbody>
       </table>
+      {/* UpsertCouponForm for update */}
+      {showForm && selectedCoupon && (
+        <UpsertCouponForm
+          onClose={() => {
+            setShowForm(false);
+            setSelectedCoupon(null);
+          }}
+          restaurantId={numericRestaurantId}
+          coupon={selectedCoupon}
+        />
+      )}
     </div>
   );
 };

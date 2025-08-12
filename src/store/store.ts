@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { employeesApi } from "../reducer/employeeApi.ts";
 import restaurantConfigReducer from "../reducer/configSlice.ts";
+import toastSlice from "../reducer/toastSlice.ts";
 import { dashboardApi } from "../reducer/dashboardApi.ts";
 import { companyApi } from "../reducer/companyApi.ts";
 import { vipRestaurantsApi } from "../reducer/vipRestaurantsApi.ts";
@@ -8,6 +9,8 @@ import { restaurantAdminApi } from "../reducer/restaurantAdminApi.ts";
 import { couponsApi } from "../reducer/couponsApi.ts";
 import { notificationApi } from "../reducer/notificationApi.ts";
 import { restaurantsApi } from "../reducer/restaurantsApi.ts";
+import { rtkErrorMiddleware } from "../reducer/rtkErrorMiddleware.ts";
+import { configApi } from "../reducer/configApi.ts";
 
 export const store = configureStore({
   reducer: {
@@ -18,7 +21,9 @@ export const store = configureStore({
     [vipRestaurantsApi.reducerPath]: vipRestaurantsApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [restaurantAdminApi.reducerPath]: restaurantAdminApi.reducer,
-    restaurantConfig: restaurantConfigReducer,
+    // restaurantConfig: restaurantConfigReducer,
+    [configApi.reducerPath]: configApi.reducer,
+    toast: toastSlice,
     [restaurantsApi.reducerPath]: restaurantsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -30,7 +35,9 @@ export const store = configureStore({
       restaurantAdminApi.middleware,
       couponsApi.middleware,
       notificationApi.middleware,
-      restaurantsApi.middleware
+      restaurantsApi.middleware,
+      configApi.middleware,
+      rtkErrorMiddleware
     ),
 });
 

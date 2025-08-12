@@ -15,9 +15,14 @@ interface Props {
     key: K,
     value: Props["config"][K]
   ) => void;
+  viewMode?: boolean;
 }
 
-const GeneralConfigForm: React.FC<Props> = ({ config, onConfigChange }) => {
+const GeneralConfigForm: React.FC<Props> = ({
+  config,
+  onConfigChange,
+  viewMode = false,
+}) => {
   const {
     fontColor,
     backgroundColor,
@@ -48,117 +53,170 @@ const GeneralConfigForm: React.FC<Props> = ({ config, onConfigChange }) => {
       <div style={{ marginBottom: 20 }}>
         <label>
           <b>Logo: </b>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(e, "logo")}
-            style={{ marginLeft: 8 }}
-          />
+          {viewMode ? (
+            logo ? (
+              <img
+                src={logo}
+                alt="Logo"
+                style={{ maxHeight: 40, marginLeft: 8 }}
+              />
+            ) : (
+              <span style={{ marginLeft: 8, color: "#888" }}>No logo</span>
+            )
+          ) : (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, "logo")}
+              style={{ marginLeft: 8 }}
+            />
+          )}
         </label>
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
           <b>Background Image: </b>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(e, "backgroundImage")}
-            style={{ marginLeft: 8 }}
-          />
+          {viewMode ? (
+            backgroundImage ? (
+              <img
+                src={backgroundImage}
+                alt="Background"
+                style={{ maxHeight: 40, marginLeft: 8 }}
+              />
+            ) : (
+              <span style={{ marginLeft: 8, color: "#888" }}>
+                No background image
+              </span>
+            )
+          ) : (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, "backgroundImage")}
+              style={{ marginLeft: 8 }}
+            />
+          )}
         </label>
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
           <b>Font Color: </b>
-          <input
-            type="color"
-            value={fontColor}
-            onChange={(e) => onConfigChange("fontColor", e.target.value)}
-            style={{
-              marginLeft: 8,
-              width: 32,
-              height: 24,
-              border: "none",
-              background: "none",
-            }}
-          />
-          <span style={{ marginLeft: 8 }}>{fontColor}</span>
+          {viewMode ? (
+            <span style={{ marginLeft: 8 }}>{fontColor}</span>
+          ) : (
+            <>
+              <input
+                type="color"
+                value={fontColor}
+                onChange={(e) => onConfigChange("fontColor", e.target.value)}
+                style={{
+                  marginLeft: 8,
+                  width: 32,
+                  height: 24,
+                  border: "none",
+                  background: "none",
+                }}
+              />
+              <span style={{ marginLeft: 8 }}>{fontColor}</span>
+            </>
+          )}
         </label>
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
           <b>Background Color: </b>
-          <input
-            type="color"
-            value={backgroundColor}
-            onChange={(e) => onConfigChange("backgroundColor", e.target.value)}
-            style={{
-              marginLeft: 8,
-              width: 32,
-              height: 24,
-              border: "none",
-              background: "none",
-            }}
-          />
-          <span style={{ marginLeft: 8 }}>{backgroundColor}</span>
+          {viewMode ? (
+            <span style={{ marginLeft: 8 }}>{backgroundColor}</span>
+          ) : (
+            <>
+              <input
+                type="color"
+                value={backgroundColor}
+                onChange={(e) =>
+                  onConfigChange("backgroundColor", e.target.value)
+                }
+                style={{
+                  marginLeft: 8,
+                  width: 32,
+                  height: 24,
+                  border: "none",
+                  background: "none",
+                }}
+              />
+              <span style={{ marginLeft: 8 }}>{backgroundColor}</span>
+            </>
+          )}
         </label>
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
           <b>Header and button Color: </b>
-          <input
-            type="color"
-            value={headerAndButtonColor}
-            onChange={(e) =>
-              onConfigChange("headerAndButtonColor", e.target.value)
-            }
-            style={{
-              marginLeft: 8,
-              width: 32,
-              height: 24,
-              border: "none",
-              background: "none",
-            }}
-          />
-          <span style={{ marginLeft: 8 }}>{headerAndButtonColor}</span>
+          {viewMode ? (
+            <span style={{ marginLeft: 8 }}>{headerAndButtonColor}</span>
+          ) : (
+            <>
+              <input
+                type="color"
+                value={headerAndButtonColor}
+                onChange={(e) =>
+                  onConfigChange("headerAndButtonColor", e.target.value)
+                }
+                style={{
+                  marginLeft: 8,
+                  width: 32,
+                  height: 24,
+                  border: "none",
+                  background: "none",
+                }}
+              />
+              <span style={{ marginLeft: 8 }}>{headerAndButtonColor}</span>
+            </>
+          )}
         </label>
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
           <b>Restaurant Name: </b>
-          <input
-            type="text"
-            value={restaurantDisplayName}
-            onChange={(e) =>
-              onConfigChange("restaurantDisplayName", e.target.value)
-            }
-            style={{
-              marginLeft: 8,
-              padding: 4,
-              fontSize: 16,
-              width: 180,
-            }}
-          />
+          {viewMode ? (
+            <span style={{ marginLeft: 8 }}>{restaurantDisplayName}</span>
+          ) : (
+            <input
+              type="text"
+              value={restaurantDisplayName}
+              onChange={(e) =>
+                onConfigChange("restaurantDisplayName", e.target.value)
+              }
+              style={{
+                marginLeft: 8,
+                padding: 4,
+                fontSize: 16,
+                width: 180,
+              }}
+            />
+          )}
         </label>
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
           <b>Description: </b>
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => onConfigChange("description", e.target.value)}
-            style={{
-              marginLeft: 8,
-              padding: 4,
-              fontSize: 16,
-              width: 220,
-            }}
-          />
+          {viewMode ? (
+            <span style={{ marginLeft: 8 }}>{description}</span>
+          ) : (
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => onConfigChange("description", e.target.value)}
+              style={{
+                marginLeft: 8,
+                padding: 4,
+                fontSize: 16,
+                width: 220,
+              }}
+            />
+          )}
         </label>
       </div>
     </>
   );
 };
-
 export default GeneralConfigForm;

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { CreateRestaurantForm } from "./CreateRestaurantForm.tsx";
+import React, { useState, useCallback } from "react";
+import { UpsertRestaurantForm } from "./UpsertRestaurantForm.tsx";
 import { Link } from "react-router-dom";
 import { MaterialReactTable, type MRT_ColumnDef } from "material-react-table";
+import MenuItem from "@mui/material/MenuItem";
 import {
   useGetRestaurantsQuery,
   type Restaurant,
@@ -15,6 +16,18 @@ const RestaurantsTable: React.FC = () => {
     error,
   } = useGetRestaurantsQuery();
   const [showForm, setShowForm] = useState(false);
+  const [selectedRestaurant, setSelectedRestaurant] =
+    useState<Restaurant | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleUpdate = useCallback(
+    (restaurant: Restaurant, closeMenu: () => void) => {
+      setSelectedRestaurant(restaurant);
+      setShowForm(true);
+      closeMenu();
+    },
+    []
+  );
 
   const columns: MRT_ColumnDef<Restaurant>[] = [
     {
@@ -52,6 +65,13 @@ const RestaurantsTable: React.FC = () => {
     },
   ];
 
+  if (isLoading)
+    return <div style={{ margin: 32 }}>Loading restaurants...</div>;
+  if (isError)
+    return (
+      <div style={{ margin: 32, color: "red" }}>Error: {String(error)}</div>
+    );
+
   return (
     <div style={{ margin: 32 }}>
       <div
@@ -63,7 +83,10 @@ const RestaurantsTable: React.FC = () => {
       >
         <h2>Restaurants</h2>
         <button
-          onClick={() => setShowForm((v) => !v)}
+          onClick={() => {
+            setSelectedRestaurant(null);
+            setShowForm((v) => !v);
+          }}
           style={{
             padding: "8px 16px",
             background: "#23272f",
@@ -75,7 +98,15 @@ const RestaurantsTable: React.FC = () => {
           Add Restaurant
         </button>
       </div>
-      {showForm && <CreateRestaurantForm onClose={() => setShowForm(false)} />}
+      {showForm && (
+        <UpsertRestaurantForm
+          onClose={() => {
+            setShowForm(false);
+            setSelectedRestaurant(null);
+          }}
+          restaurant={selectedRestaurant}
+        />
+      )}
       <div style={{ marginTop: 24 }}>
         <MaterialReactTable
           columns={columns}
@@ -88,6 +119,17 @@ const RestaurantsTable: React.FC = () => {
             elevation: 0,
             sx: { borderRadius: 2 },
           }}
+          enableRowActions
+          positionActionsColumn="last"
+          renderRowActionMenuItems={({ row, closeMenu }) => [
+            <MenuItem
+              key="update"
+              onClick={() => handleUpdate(row.original, closeMenu)}
+              aria-label="Update Restaurant"
+            >
+              Update
+            </MenuItem>,
+          ]}
         />
       </div>
     </div>

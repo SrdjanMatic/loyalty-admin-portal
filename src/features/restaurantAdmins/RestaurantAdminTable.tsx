@@ -1,13 +1,20 @@
-import React, { useState } from "react";
-import { CreateRestaurantAdminForm } from "./CreateRestaurantAdminForm";
+import React, { useState, useCallback } from "react";
+import { UpsertRestaurantAdminForm } from "./UpsertRestaurantAdminForm";
 import { MaterialReactTable, type MRT_ColumnDef } from "material-react-table";
+import MenuItem from "@mui/material/MenuItem";
 import {
   useGetRestaurantAdminsQuery,
+  useDeleteRestaurantAdminMutation,
   type RestaurantAdmin,
 } from "../../reducer/restaurantAdminApi";
+import { ConfirmationModal } from "../../common/ConfirmationModal";
 
 const RestaurantAdminTable: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
+  const [selectedAdmin, setSelectedAdmin] = useState<RestaurantAdmin | null>(
+    null
+  );
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const {
     data: items = [],
@@ -15,6 +22,36 @@ const RestaurantAdminTable: React.FC = () => {
     isError,
     error,
   } = useGetRestaurantAdminsQuery();
+
+  const [deleteRestaurantAdmin, { isLoading: isDeleting }] =
+    useDeleteRestaurantAdminMutation?.() ?? [() => {}, {}];
+
+  const handleUpdate = useCallback(
+    (admin: RestaurantAdmin, closeMenu: () => void) => {
+      setSelectedAdmin(admin);
+      setShowForm(true);
+      closeMenu();
+    },
+    []
+  );
+
+  const handleDelete = useCallback(
+    (admin: RestaurantAdmin, closeMenu: () => void) => {
+      setSelectedAdmin(admin);
+      setConfirmOpen(true);
+      closeMenu();
+    },
+    []
+  );
+
+  const confirmDelete = useCallback(async () => {
+    if (!selectedAdmin) return;
+    try {
+      await deleteRestaurantAdmin(selectedAdmin.keycloakId).unwrap();
+      setConfirmOpen(false);
+      setSelectedAdmin(null);
+    } catch {}
+  }, [deleteRestaurantAdmin, selectedAdmin]);
 
   if (isLoading) return <div style={{ margin: 32 }}>Loading admins...</div>;
   if (isError)
@@ -56,7 +93,10 @@ const RestaurantAdminTable: React.FC = () => {
       >
         <h2>Restaurant Admin</h2>
         <button
-          onClick={() => setShowForm((v) => !v)}
+          onClick={() => {
+            setSelectedAdmin(null);
+            setShowForm((v) => !v);
+          }}
           style={{
             padding: "8px 16px",
             background: "#23272f",
@@ -69,7 +109,13 @@ const RestaurantAdminTable: React.FC = () => {
         </button>
       </div>
       {showForm && (
-        <CreateRestaurantAdminForm onClose={() => setShowForm(false)} />
+        <UpsertRestaurantAdminForm
+          onClose={() => {
+            setShowForm(false);
+            setSelectedAdmin(null);
+          }}
+          admin={selectedAdmin}
+        />
       )}
       <div style={{ marginTop: 24 }}>
         <MaterialReactTable
@@ -83,8 +129,39 @@ const RestaurantAdminTable: React.FC = () => {
             elevation: 0,
             sx: { borderRadius: 2 },
           }}
+          enableRowActions
+          positionActionsColumn="last"
+          renderRowActionMenuItems={({ row, closeMenu }) => [
+            <MenuItem
+              key="update"
+              onClick={() => handleUpdate(row.original, closeMenu)}
+              aria-label="Update Admin"
+            >
+              Update
+            </MenuItem>,
+            <MenuItem
+              key="delete"
+              onClick={() => handleDelete(row.original, closeMenu)}
+              disabled={!!row.original.restaurantName}
+              sx={{ color: "#f44336" }}
+              aria-label="Delete Admin"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </MenuItem>,
+          ]}
         />
       </div>
+      <ConfirmationModal
+        isOpen={confirmOpen}
+        message={`Are you sure you want to delete admin "${selectedAdmin?.username}"?`}
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setConfirmOpen(false);
+          setSelectedAdmin(null);
+        }}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

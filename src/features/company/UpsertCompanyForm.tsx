@@ -1,10 +1,15 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useCreateCompanyMutation } from "../../reducer/companyApi";
+import {
+  Company,
+  useCreateCompanyMutation,
+  useUpdateCompanyMutation,
+} from "../../reducer/companyApi";
 
-interface CreateCompanyFormProps {
+interface UpsertCompanyFormProps {
   onClose?: () => void;
+  company?: Company | null;
 }
 
 interface FormState {
@@ -15,18 +20,27 @@ const validationSchema = Yup.object().shape({
   name: Yup.string().required("Company name is required"),
 });
 
-export const CreateCompanyForm: React.FC<CreateCompanyFormProps> = ({
+export const UpsertCompanyForm: React.FC<UpsertCompanyFormProps> = ({
   onClose,
+  company = null,
 }) => {
-  const [createCompany, { isLoading }] = useCreateCompanyMutation();
+  const [createCompany] = useCreateCompanyMutation();
+  const [updateCompany] = useUpdateCompanyMutation();
+
+  const isEdit = !!company;
 
   const formik = useFormik<FormState>({
-    initialValues: { name: "" },
+    initialValues: { name: company?.name || "" },
+    enableReinitialize: true,
     validationSchema,
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       setSubmitting(true);
       try {
-        await createCompany(values).unwrap();
+        if (isEdit && company) {
+          await updateCompany({ id: company.id, ...values }).unwrap();
+        } else {
+          await createCompany(values).unwrap();
+        }
         resetForm();
         if (onClose) onClose();
       } finally {
@@ -81,7 +95,7 @@ export const CreateCompanyForm: React.FC<CreateCompanyFormProps> = ({
         </button>
 
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          Add Company
+          {isEdit ? "Update Company" : "Add Company"}
         </h2>
 
         <div style={{ marginBottom: 20 }}>
@@ -143,7 +157,13 @@ export const CreateCompanyForm: React.FC<CreateCompanyFormProps> = ({
               fontWeight: 500,
             }}
           >
-            {formik.isSubmitting ? "Saving..." : "Save"}
+            {formik.isSubmitting
+              ? isEdit
+                ? "Updating..."
+                : "Saving..."
+              : isEdit
+              ? "Update"
+              : "Save"}
           </button>
         </div>
       </form>

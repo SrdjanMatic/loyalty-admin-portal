@@ -1,14 +1,15 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { customBaseQuery } from "./customBaseQuery";
 import { QUERY_TAGS } from "./tagConstants";
+import { setSuccess } from "./toastSlice";
 
 export interface Restaurant {
-  id?: number;
+  id: number;
   name: string;
   address: string;
   phone: string;
   pib: string;
-  restaurantAdmin?: string;
+  adminKeycloakId?: string;
 }
 
 export interface RestaurantCouponLevelView {
@@ -42,12 +43,36 @@ export const restaurantsApi = createApi({
               }
             )
           );
+          dispatch(setSuccess("Restaurant created successfully!"));
         } catch {}
       },
-      // Optionally, you can use invalidatesTags if you want to always refetch:
-      // invalidatesTags: [{ type: QUERY_TAGS.RESTAURANTS, id: "LIST" }],
     }),
-    // Coupon level endpoints can be migrated similarly if needed:
+    updateRestaurant: builder.mutation<
+      Restaurant,
+      { id: number } & Partial<Omit<Restaurant, "id" | "pib">>
+    >({
+      query: ({ id, ...patch }) => ({
+        url: `/restaurants/${id}`,
+        method: "PUT",
+        body: patch,
+      }),
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: updatedRestaurant } = await queryFulfilled;
+          dispatch(
+            restaurantsApi.util.updateQueryData(
+              "getRestaurants",
+              undefined,
+              (draft: Restaurant[]) => {
+                const idx = draft.findIndex((r) => r.id === id);
+                if (idx !== -1) draft[idx] = updatedRestaurant;
+              }
+            )
+          );
+          dispatch(setSuccess("Restaurant updated successfully!"));
+        } catch {}
+      },
+    }),
     getCouponLevel: builder.query<RestaurantCouponLevelView, number>({
       query: (restaurantId) => `/restaurants/coupon-limit/${restaurantId}`,
     }),
@@ -68,6 +93,7 @@ export const restaurantsApi = createApi({
 export const {
   useGetRestaurantsQuery,
   useCreateRestaurantMutation,
+  useUpdateRestaurantMutation,
   useGetCouponLevelQuery,
   useUpdateCouponLimitMutation,
 } = restaurantsApi;

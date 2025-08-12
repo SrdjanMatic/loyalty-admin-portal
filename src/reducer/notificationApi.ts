@@ -1,6 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { customBaseQuery } from "./customBaseQuery";
 import { QUERY_TAGS } from "./tagConstants";
+import { setSuccess } from "./toastSlice";
 
 export interface Notification {
   id?: string;
@@ -41,6 +42,7 @@ export const notificationApi = createApi({
               }
             )
           );
+          dispatch(setSuccess("Notification created successfully!"));
         } catch {}
       },
     }),
