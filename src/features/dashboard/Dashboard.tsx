@@ -12,9 +12,11 @@ import {
   Bar,
 } from "recharts";
 import { useGetDashboardStatisticQuery } from "../../reducer/dashboardApi";
-import { useGetRestaurantsQuery } from "../../reducer/restaurantsApi"; // <-- RTK Query hook
+import { useGetRestaurantsQuery } from "../../reducer/restaurantsApi";
+import { useTranslation } from "react-i18next";
 
 export const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { keycloak } = useKeycloak();
   const roles: string[] = keycloak?.tokenParsed?.realm_access?.roles || [];
   const restaurantId = keycloak?.tokenParsed?.restaurantId;
@@ -75,7 +77,7 @@ export const Dashboard: React.FC = () => {
             htmlFor="restaurant-select"
             style={{ marginRight: 12, fontWeight: "bold" }}
           >
-            Select Restaurant:
+            {t("Select Restaurant")}:
           </label>
           <select
             id="restaurant-select"
@@ -103,18 +105,18 @@ export const Dashboard: React.FC = () => {
           maxWidth: 600,
         }}
       >
-        <h2 style={{ marginBottom: 16 }}>Restaurant Info</h2>
+        <h2 style={{ marginBottom: 16 }}>{t("Restaurant Info")}</h2>
         <p>
-          <strong>Name:</strong> {dashboardStats?.restaurantName}
+          <strong>{t("Name")}:</strong> {dashboardStats?.restaurantName}
         </p>
         <p>
-          <strong>PIB:</strong> {dashboardStats?.pib}
+          <strong>{t("PIB")}:</strong> {dashboardStats?.pib}
         </p>
         <p>
-          <strong>Address:</strong> {dashboardStats?.address}
+          <strong>{t("Address")}:</strong> {dashboardStats?.address}
         </p>
         <p>
-          <strong>Phone:</strong> {dashboardStats?.phone}
+          <strong>{t("Phone")}:</strong> {dashboardStats?.phone}
         </p>
       </div>
 
@@ -130,7 +132,7 @@ export const Dashboard: React.FC = () => {
           textAlign: "center",
         }}
       >
-        <h3>Total Loyalty Users</h3>
+        <h3>{t("Total Loyalty Users")}</h3>
         <p
           style={{ fontSize: 48, fontWeight: "bold", margin: 0, color: "#333" }}
         >
@@ -148,7 +150,7 @@ export const Dashboard: React.FC = () => {
           marginBottom: 32,
         }}
       >
-        <h3 style={{ marginBottom: 16 }}>Scanned Receipts Per Day</h3>
+        <h3 style={{ marginBottom: 16 }}>{t("Scanned Receipts Per Day")}</h3>
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={receiptsMap}>
             <CartesianGrid stroke="#ccc" />
@@ -168,7 +170,7 @@ export const Dashboard: React.FC = () => {
           boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
         }}
       >
-        <h3 style={{ marginBottom: 16 }}>Food Preferences</h3>
+        <h3 style={{ marginBottom: 16 }}>{t("Food Preferences")}</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={foodPreferences}>
             <CartesianGrid stroke="#ccc" />

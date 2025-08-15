@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useParams } from "react-router-dom";
 import { useCreateNotificationMutation } from "../../reducer/notificationApi";
+import { useTranslation } from "react-i18next";
 
 const foodOptions = [
   "Pizza",
@@ -26,19 +27,21 @@ const foodOptions = [
 
 const partsOfDayOptions = ["Breakfast", "Lunch", "Dinner", "All Day"];
 
-const validationSchema = Yup.object().shape({
-  foodType: Yup.string().required("Part of Day is required"),
-  partOfDay: Yup.string().required("Part of Day is required"),
-  validFrom: Yup.string().required("Valid From date is required"),
-});
-
 export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
   onClose,
 }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch<any>();
   const { restaurantId } = useParams();
 
   const [createNotification, { isLoading }] = useCreateNotificationMutation();
+
+  const validationSchema = Yup.object().shape({
+    title: Yup.string().required(t("Title is required")),
+    foodType: Yup.string().required(t("Food type is required")),
+    partOfDay: Yup.string().required(t("Part of day is required")),
+    validFrom: Yup.string().required(t("Valid From date is required")),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -103,24 +106,24 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
             fontSize: 22,
             cursor: "pointer",
           }}
-          aria-label="Close"
+          aria-label={t("Close")}
         >
           &times;
         </button>
 
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          Create Notification
+          {t("Create Notification")}
         </h2>
 
         <div style={{ marginBottom: 20 }}>
-          <label style={{ fontWeight: 500 }}>Title</label>
+          <label style={{ fontWeight: 500 }}>{t("Title")}</label>
           <input
             name="title"
             type="text"
             value={formik.values.title}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder="Title"
+            placeholder={t("Title")}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -136,7 +139,7 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
         </div>
 
         <div style={{ marginBottom: 20 }}>
-          <label style={{ fontWeight: 500 }}>Food Type</label>
+          <label style={{ fontWeight: 500 }}>{t("Food Type")}</label>
           <div
             style={{
               display: "flex",
@@ -162,7 +165,7 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
                   checked={formik.values.foodType === food}
                   onChange={formik.handleChange}
                 />
-                {food}
+                {t(food)}
               </label>
             ))}
           </div>
@@ -174,7 +177,7 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
         </div>
 
         <div style={{ marginBottom: 20 }}>
-          <label style={{ fontWeight: 500 }}>Part of Day</label>
+          <label style={{ fontWeight: 500 }}>{t("Part of Day")}</label>
           <select
             name="partOfDay"
             value={formik.values.partOfDay}
@@ -186,10 +189,10 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
               borderRadius: 4,
             }}
           >
-            <option value="">Select part of day</option>
+            <option value="">{t("Select part of day")}</option>
             {partsOfDayOptions.map((part) => (
               <option key={part} value={part}>
-                {part}
+                {t(part)}
               </option>
             ))}
           </select>
@@ -201,7 +204,7 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
         </div>
 
         <div style={{ marginBottom: 20 }}>
-          <label style={{ fontWeight: 500 }}>Valid From</label>
+          <label style={{ fontWeight: 500 }}>{t("Valid From")}</label>
           <input
             type="date"
             name="validFrom"
@@ -222,7 +225,7 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
         </div>
 
         <div style={{ marginBottom: 24 }}>
-          <label style={{ fontWeight: 500 }}>Duration</label>
+          <label style={{ fontWeight: 500 }}>{t("Duration")}</label>
           <select
             name="duration"
             disabled
@@ -236,7 +239,7 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
               cursor: "not-allowed",
             }}
           >
-            <option value="Day">Day</option>
+            <option value="Day">{t("Day")}</option>
           </select>
         </div>
 
@@ -253,7 +256,7 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
               fontWeight: 500,
             }}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="submit"
@@ -268,7 +271,7 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
               fontWeight: 500,
             }}
           >
-            {formik.isSubmitting ? "Saving..." : "Save"}
+            {formik.isSubmitting ? t("Saving...") : t("Save")}
           </button>
         </div>
       </form>

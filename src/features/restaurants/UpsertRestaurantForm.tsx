@@ -10,6 +10,7 @@ import {
   useUpdateRestaurantMutation,
   type Restaurant,
 } from "../../reducer/restaurantsApi.ts";
+import { useTranslation } from "react-i18next";
 
 interface UpsertRestaurantFormProps {
   onClose?: () => void;
@@ -38,6 +39,7 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
   onClose,
   restaurant = null,
 }) => {
+  const { t } = useTranslation();
   const [createRestaurant, { isLoading: isCreating }] =
     useCreateRestaurantMutation();
   const [updateRestaurant, { isLoading: isUpdating }] =
@@ -121,12 +123,12 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
             fontSize: 22,
             cursor: "pointer",
           }}
-          aria-label="Close"
+          aria-label={t("Close")}
         >
           &times;
         </button>
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          {isEdit ? "Update Restaurant" : "Add Restaurant"}
+          {isEdit ? t("Update Restaurant") : t("Add Restaurant")}
         </h2>
 
         {/* Name Field */}
@@ -135,13 +137,13 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
             htmlFor="name"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Name
+            {t("Name")}
           </label>
           <input
             id="name"
             name="name"
             type="text"
-            placeholder="Enter name"
+            placeholder={t("Enter name")}
             value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -167,13 +169,13 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
             htmlFor="address"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Address
+            {t("Address")}
           </label>
           <input
             id="address"
             name="address"
             type="text"
-            placeholder="Enter address"
+            placeholder={t("Enter address")}
             value={formik.values.address}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -199,13 +201,13 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
             htmlFor="phone"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Phone
+            {t("Phone")}
           </label>
           <input
             id="phone"
             name="phone"
             type="text"
-            placeholder="Enter phone"
+            placeholder={t("Enter phone")}
             value={formik.values.phone}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -231,18 +233,18 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
             htmlFor="pib"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            PIB
+            {t("PIB")}
           </label>
           <input
             id="pib"
             name="pib"
             type="text"
-            placeholder="Enter PIB"
+            placeholder={t("Enter PIB")}
             value={formik.values.pib}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             maxLength={9}
-            disabled={isEdit} // <-- Make PIB not editable in edit mode
+            disabled={isEdit}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -250,7 +252,7 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
               borderRadius: 4,
               fontSize: 14,
               boxSizing: "border-box",
-              background: isEdit ? "#f5f5f5" : undefined, // visually indicate disabled
+              background: isEdit ? "#f5f5f5" : undefined,
             }}
           />
           {formik.touched.pib && formik.errors.pib && (
@@ -264,7 +266,7 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
             htmlFor="restaurantAdmin"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Restaurant Admin
+            {t("Restaurant Admin")}
           </label>
           <select
             id="adminKeycloakId"
@@ -282,7 +284,7 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
             }}
           >
             <option value="" disabled>
-              Select an admin
+              {t("Select an admin")}
             </option>
             {items.map((admin: RestaurantAdmin) => (
               <option key={admin.keycloakId} value={admin.keycloakId}>
@@ -311,7 +313,7 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
               fontWeight: 500,
             }}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="submit"
@@ -328,11 +330,11 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
           >
             {formik.isSubmitting || isCreating || isUpdating
               ? isEdit
-                ? "Updating..."
-                : "Saving..."
+                ? t("Updating...")
+                : t("Saving...")
               : isEdit
-              ? "Update"
-              : "Save"}
+              ? t("Update")
+              : t("Save")}
           </button>
         </div>
       </form>

@@ -14,6 +14,7 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import { useTranslation } from "react-i18next";
 
 interface TableCellProps {
   children: React.ReactNode;
@@ -31,13 +32,8 @@ const LEVELS: Array<"STANDARD" | "PREMIUM" | "VIP"> = [
   "VIP",
 ];
 
-const LEVEL_LABELS: Record<string, string> = {
-  STANDARD: "Standard",
-  PREMIUM: "Premium",
-  VIP: "VIP",
-};
-
 const CouponsTable: React.FC = () => {
+  const { t } = useTranslation();
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const numericRestaurantId = Number(restaurantId);
 
@@ -48,13 +44,8 @@ const CouponsTable: React.FC = () => {
     error,
   } = useGetCouponsQuery(numericRestaurantId);
 
-  const {
-    data: fetchedCouponLevel,
-    isLoading: isCouponLevelLoading,
-    isError: isCouponLevelError,
-    error: couponLevelError,
-    refetch: refetchCouponLevel,
-  } = useGetCouponLevelQuery(numericRestaurantId);
+  const { data: fetchedCouponLevel, refetch: refetchCouponLevel } =
+    useGetCouponLevelQuery(numericRestaurantId);
 
   const [updateCouponLimit] = useUpdateCouponLimitMutation();
   const [deleteCoupon, { isLoading: isDeleting }] = useDeleteCouponMutation();
@@ -63,11 +54,9 @@ const CouponsTable: React.FC = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
 
-  // For 3-dots menu
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuCouponId, setMenuCouponId] = useState<number | null>(null);
 
-  // Group coupons by level
   const couponsByLevel: Record<string, Coupon[]> = {
     STANDARD: [],
     PREMIUM: [],
@@ -80,14 +69,20 @@ const CouponsTable: React.FC = () => {
     }
   });
 
-  // Helper to get limit label for Premium and VIP
+  const LEVEL_LABELS: Record<string, string> = {
+    STANDARD: t("Standard"),
+    PREMIUM: t("Premium"),
+    VIP: t("VIP"),
+  };
+
   const getLevelLabel = (level: "STANDARD" | "PREMIUM" | "VIP") => {
     if (level === "PREMIUM" && fetchedCouponLevel) {
       return (
         <>
           {LEVEL_LABELS[level]}{" "}
           <span style={{ color: "#888", fontWeight: 400, fontSize: 14 }}>
-            (Limit: {fetchedCouponLevel.premiumCouponLimit} tokens)
+            ({t("Limit")}: {fetchedCouponLevel.premiumCouponLimit} {t("tokens")}
+            )
           </span>
           <button
             style={{
@@ -100,9 +95,9 @@ const CouponsTable: React.FC = () => {
               cursor: "pointer",
             }}
             onClick={() => setShowEditForm(true)}
-            title="Edit Premium Limit"
+            title={t("Edit Premium Limit")}
           >
-            Edit limit
+            {t("Edit limit")}
           </button>
         </>
       );
@@ -112,7 +107,7 @@ const CouponsTable: React.FC = () => {
         <>
           {LEVEL_LABELS[level]}
           <span style={{ color: "#888", fontWeight: 400, fontSize: 14 }}>
-            (Limit: {fetchedCouponLevel.vipCouponLimit} tokens)
+            ({t("Limit")}: {fetchedCouponLevel.vipCouponLimit} {t("tokens")})
           </span>
           <button
             style={{
@@ -125,9 +120,9 @@ const CouponsTable: React.FC = () => {
               cursor: "pointer",
             }}
             onClick={() => setShowEditForm(true)}
-            title="Edit VIP Limit"
+            title={t("Edit VIP Limit")}
           >
-            Edit limit
+            {t("Edit limit")}
           </button>
         </>
       );
@@ -179,10 +174,13 @@ const CouponsTable: React.FC = () => {
     setSelectedCoupon(null);
   }, [deleteCoupon, selectedCoupon]);
 
-  if (isLoading) return <div style={{ margin: 32 }}>Loading coupons...</div>;
+  if (isLoading)
+    return <div style={{ margin: 32 }}>{t("Loading coupons...")}</div>;
   if (isError)
     return (
-      <div style={{ margin: 32, color: "red" }}>Error: {String(error)}</div>
+      <div style={{ margin: 32, color: "red" }}>
+        {t("Error")}: {String(error)}
+      </div>
     );
 
   return (
@@ -194,7 +192,7 @@ const CouponsTable: React.FC = () => {
           justifyContent: "space-between",
         }}
       >
-        <h2>Coupons</h2>
+        <h2>{t("Coupons")}</h2>
         <button
           onClick={() => setShowForm((v) => !v)}
           style={{
@@ -205,7 +203,7 @@ const CouponsTable: React.FC = () => {
             borderRadius: 4,
           }}
         >
-          Add Coupon
+          {t("Add Coupon")}
         </button>
         {showForm && (
           <UpsertCouponForm
@@ -235,12 +233,18 @@ const CouponsTable: React.FC = () => {
       >
         <thead>
           <tr style={{ background: "#f5f6fa" }}>
-            <th style={{ padding: "12px 16px", textAlign: "left" }}>Name</th>
             <th style={{ padding: "12px 16px", textAlign: "left" }}>
-              Description
+              {t("Name")}
             </th>
-            <th style={{ padding: "12px 16px", textAlign: "left" }}>Points</th>
-            <th style={{ padding: "12px 16px", textAlign: "left" }}>Actions</th>
+            <th style={{ padding: "12px 16px", textAlign: "left" }}>
+              {t("Description")}
+            </th>
+            <th style={{ padding: "12px 16px", textAlign: "left" }}>
+              {t("Points")}
+            </th>
+            <th style={{ padding: "12px 16px", textAlign: "left" }}>
+              {t("Actions")}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -263,7 +267,9 @@ const CouponsTable: React.FC = () => {
               {couponsByLevel[level].length === 0 ? (
                 <tr>
                   <td colSpan={4} style={{ color: "#888", padding: "16px" }}>
-                    No {LEVEL_LABELS[level].toLowerCase()} coupons.
+                    {t("No {{level}} coupons.", {
+                      level: LEVEL_LABELS[level].toLowerCase(),
+                    })}
                   </td>
                 </tr>
               ) : (
@@ -274,7 +280,7 @@ const CouponsTable: React.FC = () => {
                     <TableCell>{c.points}</TableCell>
                     <TableCell>
                       <button
-                        aria-label="More actions"
+                        aria-label={t("More actions")}
                         style={{
                           background: "none",
                           border: "none",
@@ -304,17 +310,17 @@ const CouponsTable: React.FC = () => {
                               setShowForm(true);
                               setAnchorEl(null);
                             }}
-                            aria-label="Update Coupon"
+                            aria-label={t("Update Coupon")}
                           >
-                            Update
+                            {t("Update")}
                           </MenuItem>
                           <MenuItem
                             onClick={handleDelete}
-                            aria-label="Delete Coupon"
+                            aria-label={t("Delete Coupon")}
                             sx={{ color: "#f44336" }}
                             disabled={isDeleting}
                           >
-                            {isDeleting ? "Deleting..." : "Delete"}
+                            {isDeleting ? t("Deleting...") : t("Delete")}
                           </MenuItem>
                         </Menu>
                       )}
@@ -326,7 +332,6 @@ const CouponsTable: React.FC = () => {
           ))}
         </tbody>
       </table>
-      {/* UpsertCouponForm for update */}
       {showForm && selectedCoupon && (
         <UpsertCouponForm
           onClose={() => {

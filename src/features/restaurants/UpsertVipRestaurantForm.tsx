@@ -7,10 +7,11 @@ import {
   useUpdateVipRestaurantMutation,
   VipRestaurant,
 } from "../../reducer/vipRestaurantsApi";
+import { useTranslation } from "react-i18next";
 
 interface UpsertVipRestaurantFormProps {
   onClose?: () => void;
-  vipRestaurant?: VipRestaurant | null; // Replace 'any' with your VipRestaurant type if available
+  vipRestaurant?: VipRestaurant | null;
 }
 
 interface FormState {
@@ -23,53 +24,57 @@ interface FormState {
   premiumDiscount: number | "";
 }
 
-const validationSchema = Yup.object().shape({
-  restaurantId: Yup.number()
-    .typeError("Restaurant is required")
-    .required("Restaurant is required"),
-  backgroundImage: Yup.string().required("Background Image URL is required"),
-  discountType: Yup.string().oneOf(["general", "perLevel"]).required(),
-  discount: Yup.number().when("discountType", {
-    is: "general",
-    then: (schema) =>
-      schema
-        .typeError("Discount must be a number")
-        .required("Discount is required")
-        .min(0, "Discount cannot be negative"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-  standardDiscount: Yup.number().when("discountType", {
-    is: "perLevel",
-    then: (schema) =>
-      schema
-        .typeError("Standard Discount must be a number")
-        .required("Standard Discount is required")
-        .min(0, "Discount cannot be negative"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-  vipDiscount: Yup.number().when("discountType", {
-    is: "perLevel",
-    then: (schema) =>
-      schema
-        .typeError("VIP Discount must be a number")
-        .required("VIP Discount is required")
-        .min(0, "Discount cannot be negative"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-  premiumDiscount: Yup.number().when("discountType", {
-    is: "perLevel",
-    then: (schema) =>
-      schema
-        .typeError("Premium Discount must be a number")
-        .required("Premium Discount is required")
-        .min(0, "Discount cannot be negative"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-});
+const validationSchema = (t: any) =>
+  Yup.object().shape({
+    restaurantId: Yup.number()
+      .typeError(t("Restaurant is required"))
+      .required(t("Restaurant is required")),
+    backgroundImage: Yup.string().required(
+      t("Background Image URL is required")
+    ),
+    discountType: Yup.string().oneOf(["general", "perLevel"]).required(),
+    discount: Yup.number().when("discountType", {
+      is: "general",
+      then: (schema) =>
+        schema
+          .typeError(t("Discount must be a number"))
+          .required(t("Discount is required"))
+          .min(0, t("Discount cannot be negative")),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    standardDiscount: Yup.number().when("discountType", {
+      is: "perLevel",
+      then: (schema) =>
+        schema
+          .typeError(t("Standard Discount must be a number"))
+          .required(t("Standard Discount is required"))
+          .min(0, t("Discount cannot be negative")),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    vipDiscount: Yup.number().when("discountType", {
+      is: "perLevel",
+      then: (schema) =>
+        schema
+          .typeError(t("VIP Discount must be a number"))
+          .required(t("VIP Discount is required"))
+          .min(0, t("Discount cannot be negative")),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    premiumDiscount: Yup.number().when("discountType", {
+      is: "perLevel",
+      then: (schema) =>
+        schema
+          .typeError(t("Premium Discount must be a number"))
+          .required(t("Premium Discount is required"))
+          .min(0, t("Discount cannot be negative")),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  });
 
 export const UpsertVipRestaurantForm: React.FC<
   UpsertVipRestaurantFormProps
 > = ({ onClose, vipRestaurant = null }) => {
+  const { t } = useTranslation();
   const { data: restaurants = [], isLoading: isRestaurantsLoading } =
     useGetRestaurantsQuery();
   const [createVipRestaurant, { isLoading: isCreating }] =
@@ -101,7 +106,7 @@ export const UpsertVipRestaurantForm: React.FC<
       premiumDiscount: vipRestaurant?.levelDiscounts?.PREMIUM ?? "",
     },
     enableReinitialize: true,
-    validationSchema,
+    validationSchema: validationSchema(t),
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       setSubmitting(true);
       try {
@@ -172,13 +177,13 @@ export const UpsertVipRestaurantForm: React.FC<
             fontSize: 22,
             cursor: "pointer",
           }}
-          aria-label="Close"
+          aria-label={t("Close")}
         >
           &times;
         </button>
 
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          {isEdit ? "Update VIP Restaurant" : "Add VIP Restaurant"}
+          {isEdit ? t("Update VIP Restaurant") : t("Add VIP Restaurant")}
         </h2>
 
         <div style={{ marginBottom: 20 }}>
@@ -186,7 +191,7 @@ export const UpsertVipRestaurantForm: React.FC<
             htmlFor="restaurantId"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Restaurant
+            {t("Restaurant")}
           </label>
           <select
             id="restaurantId"
@@ -204,7 +209,7 @@ export const UpsertVipRestaurantForm: React.FC<
             }}
             disabled={isRestaurantsLoading}
           >
-            <option value="">Select Restaurant</option>
+            <option value="">{t("Select Restaurant")}</option>
             {restaurants.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name}
@@ -223,13 +228,13 @@ export const UpsertVipRestaurantForm: React.FC<
             htmlFor="backgroundImage"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Background Image URL
+            {t("Background Image URL")}
           </label>
           <input
             id="backgroundImage"
             name="backgroundImage"
             type="text"
-            placeholder="Enter image URL"
+            placeholder={t("Enter image URL")}
             value={formik.values.backgroundImage}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -272,13 +277,13 @@ export const UpsertVipRestaurantForm: React.FC<
                 }}
                 style={{ marginRight: 8 }}
               />
-              General Discount
+              {t("General Discount")}
             </label>
             <input
               id="discount"
               name="discount"
               type="number"
-              placeholder="Enter discount"
+              placeholder={t("Enter discount")}
               value={formik.values.discount}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -327,13 +332,13 @@ export const UpsertVipRestaurantForm: React.FC<
                 }}
                 style={{ marginRight: 8 }}
               />
-              Discount Per Level
+              {t("Discount Per Level")}
             </label>
             <input
               id="standardDiscount"
               name="standardDiscount"
               type="number"
-              placeholder="Standard"
+              placeholder={t("Standard")}
               value={formik.values.standardDiscount}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -356,7 +361,7 @@ export const UpsertVipRestaurantForm: React.FC<
               id="vipDiscount"
               name="vipDiscount"
               type="number"
-              placeholder="VIP"
+              placeholder={t("VIP")}
               value={formik.values.vipDiscount}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -379,7 +384,7 @@ export const UpsertVipRestaurantForm: React.FC<
               id="premiumDiscount"
               name="premiumDiscount"
               type="number"
-              placeholder="Premium"
+              placeholder={t("Premium")}
               value={formik.values.premiumDiscount}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -434,7 +439,7 @@ export const UpsertVipRestaurantForm: React.FC<
               fontWeight: 500,
             }}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="submit"
@@ -451,11 +456,11 @@ export const UpsertVipRestaurantForm: React.FC<
           >
             {formik.isSubmitting || isCreating || isUpdating
               ? isEdit
-                ? "Updating..."
-                : "Saving..."
+                ? t("Updating...")
+                : t("Saving...")
               : isEdit
-              ? "Update"
-              : "Save"}
+              ? t("Update")
+              : t("Save")}
           </button>
         </div>
       </form>

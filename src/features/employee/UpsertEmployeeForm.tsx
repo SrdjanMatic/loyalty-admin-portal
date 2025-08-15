@@ -6,6 +6,7 @@ import {
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
 } from "../../reducer/employeeApi";
+import { useTranslation } from "react-i18next";
 
 interface UpsertEmployeeFormProps {
   employee?: Employee | null;
@@ -19,23 +20,24 @@ interface FormState {
   email: string;
 }
 
-const validationSchema = Yup.object().shape({
-  firstName: Yup.string().required("First name is required"),
-  lastName: Yup.string().required("Last name is required"),
-  email: Yup.string()
-    .email("Invalid email address")
-    .required("Email is required"),
-});
-
 export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
   employee = null,
   companyId,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const [createEmployee] = useCreateEmployeeMutation();
   const [updateEmployee] = useUpdateEmployeeMutation();
 
   const isEdit = !!employee;
+
+  const validationSchema = Yup.object().shape({
+    firstName: Yup.string().required(t("First name is required")),
+    lastName: Yup.string().required(t("Last name is required")),
+    email: Yup.string()
+      .email(t("Invalid email address"))
+      .required(t("Email is required")),
+  });
 
   const formik = useFormik<FormState>({
     initialValues: {
@@ -102,13 +104,13 @@ export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
             fontSize: 22,
             cursor: "pointer",
           }}
-          aria-label="Close"
+          aria-label={t("Close")}
         >
           &times;
         </button>
 
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          {isEdit ? "Update Employee" : "Add Employee"}
+          {isEdit ? t("Update Employee") : t("Add Employee")}
         </h2>
 
         <div style={{ marginBottom: 20 }}>
@@ -116,7 +118,7 @@ export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
             htmlFor="firstName"
             style={{ fontWeight: 500, marginBottom: 6 }}
           >
-            First Name
+            {t("First Name")}
           </label>
           <input
             id="firstName"
@@ -125,7 +127,7 @@ export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
             value={formik.values.firstName}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder="Enter first name"
+            placeholder={t("Enter first name")}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -146,7 +148,7 @@ export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
             htmlFor="lastName"
             style={{ fontWeight: 500, marginBottom: 6 }}
           >
-            Last Name
+            {t("Last Name")}
           </label>
           <input
             id="lastName"
@@ -155,7 +157,7 @@ export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
             value={formik.values.lastName}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder="Enter last name"
+            placeholder={t("Enter last name")}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -173,7 +175,7 @@ export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
 
         <div style={{ marginBottom: 20 }}>
           <label htmlFor="email" style={{ fontWeight: 500, marginBottom: 6 }}>
-            Email
+            {t("Email")}
           </label>
           <input
             id="email"
@@ -182,7 +184,7 @@ export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
             value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder="Enter email"
+            placeholder={t("Enter email")}
             style={{
               width: "100%",
               padding: "10px 12px",
@@ -212,7 +214,7 @@ export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
               fontWeight: 500,
             }}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="submit"
@@ -229,11 +231,11 @@ export const UpsertEmployeeForm: React.FC<UpsertEmployeeFormProps> = ({
           >
             {formik.isSubmitting
               ? isEdit
-                ? "Updating..."
-                : "Saving..."
+                ? t("Updating...")
+                : t("Saving...")
               : isEdit
-              ? "Update"
-              : "Save"}
+              ? t("Update")
+              : t("Save")}
           </button>
         </div>
       </form>

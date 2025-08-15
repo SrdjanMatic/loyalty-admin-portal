@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   config: {
@@ -23,6 +24,7 @@ const GeneralConfigForm: React.FC<Props> = ({
   onConfigChange,
   viewMode = false,
 }) => {
+  const { t } = useTranslation();
   const {
     fontColor,
     backgroundColor,
@@ -49,19 +51,21 @@ const GeneralConfigForm: React.FC<Props> = ({
 
   return (
     <>
-      <h3 style={{ fontSize: 20, marginBottom: 20 }}>General Config</h3>
+      <h3 style={{ fontSize: 20, marginBottom: 20 }}>{t("General Config")}</h3>
       <div style={{ marginBottom: 20 }}>
         <label>
-          <b>Logo: </b>
+          <b>{t("Logo")}: </b>
           {viewMode ? (
             logo ? (
               <img
                 src={logo}
-                alt="Logo"
+                alt={t("Logo")}
                 style={{ maxHeight: 40, marginLeft: 8 }}
               />
             ) : (
-              <span style={{ marginLeft: 8, color: "#888" }}>No logo</span>
+              <span style={{ marginLeft: 8, color: "#888" }}>
+                {t("No logo")}
+              </span>
             )
           ) : (
             <input
@@ -75,17 +79,17 @@ const GeneralConfigForm: React.FC<Props> = ({
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
-          <b>Background Image: </b>
+          <b>{t("Background Image")}: </b>
           {viewMode ? (
             backgroundImage ? (
               <img
                 src={backgroundImage}
-                alt="Background"
+                alt={t("Background")}
                 style={{ maxHeight: 40, marginLeft: 8 }}
               />
             ) : (
               <span style={{ marginLeft: 8, color: "#888" }}>
-                No background image
+                {t("No background image")}
               </span>
             )
           ) : (
@@ -100,7 +104,7 @@ const GeneralConfigForm: React.FC<Props> = ({
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
-          <b>Font Color: </b>
+          <b>{t("Font Color")}: </b>
           {viewMode ? (
             <span style={{ marginLeft: 8 }}>{fontColor}</span>
           ) : (
@@ -124,7 +128,7 @@ const GeneralConfigForm: React.FC<Props> = ({
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
-          <b>Background Color: </b>
+          <b>{t("Background Color")}: </b>
           {viewMode ? (
             <span style={{ marginLeft: 8 }}>{backgroundColor}</span>
           ) : (
@@ -150,7 +154,7 @@ const GeneralConfigForm: React.FC<Props> = ({
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
-          <b>Header and button Color: </b>
+          <b>{t("Header and Button Color")}: </b>
           {viewMode ? (
             <span style={{ marginLeft: 8 }}>{headerAndButtonColor}</span>
           ) : (
@@ -176,7 +180,7 @@ const GeneralConfigForm: React.FC<Props> = ({
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
-          <b>Restaurant Name: </b>
+          <b>{t("Restaurant Name")}: </b>
           {viewMode ? (
             <span style={{ marginLeft: 8 }}>{restaurantDisplayName}</span>
           ) : (
@@ -198,7 +202,7 @@ const GeneralConfigForm: React.FC<Props> = ({
       </div>
       <div style={{ marginBottom: 20 }}>
         <label>
-          <b>Description: </b>
+          <b>{t("Description")}: </b>
           {viewMode ? (
             <span style={{ marginLeft: 8 }}>{description}</span>
           ) : (
@@ -219,4 +223,5 @@ const GeneralConfigForm: React.FC<Props> = ({
     </>
   );
 };
+
 export default GeneralConfigForm;

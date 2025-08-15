@@ -17,11 +17,17 @@ import VipRestaurantsTable from "./features/restaurants/VipRestaurantsTable.tsx"
 import NotificationTable from "./features/notification/NotificationTable.tsx";
 import RestaurantAdminTable from "./features/restaurantAdmins/RestaurantAdminTable.tsx";
 import { ToastSnackbar } from "./features/errors/ToastSnackbar.tsx";
+import { useTranslation } from "react-i18next";
+import i18n from "./i18n.ts";
+import Header from "./features/header/Header.tsx";
 
 const App: React.FC = () => {
   const { keycloak, initialized } = useKeycloak();
+  const { i18n, t } = useTranslation();
 
   const roles: string[] = keycloak?.tokenParsed?.realm_access?.roles || [];
+  const username: string | undefined =
+    keycloak?.tokenParsed?.preferred_username;
 
   const getDefaultRoute = (roles: string[]) => {
     if (roles.includes("System admin")) return "/dashboard";
@@ -53,13 +59,30 @@ const App: React.FC = () => {
     return null;
   }
 
+  const handleLogout = () => {
+    keycloak.logout({
+      redirectUri: window.location.origin + "/",
+    });
+  };
+
+  const handleLangChange = (lang: string) => {
+    i18n.changeLanguage(lang);
+  };
+
   return (
     <Router>
       <ToastSnackbar />
       <Sidebar />
+      <Header
+        onLogout={handleLogout}
+        currentLang={i18n.language}
+        onLangChange={handleLangChange}
+        username={username}
+      />
       <div
         style={{
           marginLeft: 220,
+          marginTop: 64,
           background: "#f5f6fa",
           minHeight: "100vh",
           padding: 16,

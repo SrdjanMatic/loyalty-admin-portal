@@ -6,6 +6,7 @@ import {
   useUpdateRestaurantAdminMutation,
   type RestaurantAdmin,
 } from "../../reducer/restaurantAdminApi.ts";
+import { useTranslation } from "react-i18next";
 
 interface UpsertRestaurantAdminFormProps {
   onClose?: () => void;
@@ -19,22 +20,25 @@ interface FormState {
   lastName: string;
 }
 
-const validationSchema = Yup.object().shape({
-  username: Yup.string().required("Username is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  firstName: Yup.string().required("First name is required"),
-  lastName: Yup.string().required("Last name is required"),
-});
-
 export const UpsertRestaurantAdminForm: React.FC<
   UpsertRestaurantAdminFormProps
 > = ({ onClose, admin = null }) => {
+  const { t } = useTranslation();
   const [createRestaurantAdmin, { isLoading: isCreating }] =
     useCreateRestaurantAdminMutation();
   const [updateRestaurantAdmin, { isLoading: isUpdating }] =
     useUpdateRestaurantAdminMutation();
 
   const isEdit = !!admin;
+
+  const validationSchema = Yup.object().shape({
+    username: Yup.string().required(t("Username is required")),
+    email: Yup.string()
+      .email(t("Invalid email"))
+      .required(t("Email is required")),
+    firstName: Yup.string().required(t("First name is required")),
+    lastName: Yup.string().required(t("Last name is required")),
+  });
 
   const formik = useFormik<FormState>({
     initialValues: {
@@ -104,13 +108,13 @@ export const UpsertRestaurantAdminForm: React.FC<
             fontSize: 22,
             cursor: "pointer",
           }}
-          aria-label="Close"
+          aria-label={t("Close")}
         >
           &times;
         </button>
 
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          {isEdit ? "Update Restaurant Admin" : "Add Restaurant Admin"}
+          {isEdit ? t("Update Restaurant Admin") : t("Add Restaurant Admin")}
         </h2>
 
         {/* Username */}
@@ -119,13 +123,13 @@ export const UpsertRestaurantAdminForm: React.FC<
             htmlFor="username"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Username
+            {t("Username")}
           </label>
           <input
             id="username"
             name="username"
             type="text"
-            placeholder="Enter username"
+            placeholder={t("Enter username")}
             value={formik.values.username}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -152,13 +156,13 @@ export const UpsertRestaurantAdminForm: React.FC<
             htmlFor="email"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Email
+            {t("Email")}
           </label>
           <input
             id="email"
             name="email"
             type="email"
-            placeholder="Enter email"
+            placeholder={t("Enter email")}
             value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -184,13 +188,13 @@ export const UpsertRestaurantAdminForm: React.FC<
             htmlFor="firstName"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            First Name
+            {t("First Name")}
           </label>
           <input
             id="firstName"
             name="firstName"
             type="text"
-            placeholder="Enter first name"
+            placeholder={t("Enter first name")}
             value={formik.values.firstName}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -216,13 +220,13 @@ export const UpsertRestaurantAdminForm: React.FC<
             htmlFor="lastName"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Last Name
+            {t("Last Name")}
           </label>
           <input
             id="lastName"
             name="lastName"
             type="text"
-            placeholder="Enter last name"
+            placeholder={t("Enter last name")}
             value={formik.values.lastName}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -255,7 +259,7 @@ export const UpsertRestaurantAdminForm: React.FC<
               fontWeight: 500,
             }}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="submit"
@@ -272,11 +276,11 @@ export const UpsertRestaurantAdminForm: React.FC<
           >
             {formik.isSubmitting || isCreating || isUpdating
               ? isEdit
-                ? "Updating..."
-                : "Saving..."
+                ? t("Updating...")
+                : t("Saving...")
               : isEdit
-              ? "Update"
-              : "Save"}
+              ? t("Update")
+              : t("Save")}
           </button>
         </div>
       </form>

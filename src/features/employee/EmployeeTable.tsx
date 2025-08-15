@@ -9,11 +9,17 @@ import {
 import { ConfirmationModal } from "../../common/ConfirmationModal.tsx";
 import { MaterialReactTable } from "material-react-table";
 import MenuItem from "@mui/material/MenuItem";
-import { employeeTableColumns } from "./EmployeeTableColumns.tsx";
+import { useEmployeeTableColumns } from "./EmployeeTableColumns";
+import { useTranslation } from "react-i18next";
+import { useTableLocalization } from "../hooks/useTableLocalization.ts";
 
 const EmployeesTable: React.FC = () => {
+  const { t } = useTranslation();
+  const localization = useTableLocalization();
   const { companyId } = useParams<{ companyId: string }>();
   const numericCompanyId = Number(companyId);
+
+  const columns = useEmployeeTableColumns();
 
   const {
     data: employees,
@@ -64,12 +70,12 @@ const EmployeesTable: React.FC = () => {
   );
 
   if (status === "pending") {
-    return <div style={{ margin: 32 }}>Loading employees...</div>;
+    return <div style={{ margin: 32 }}>{t("Loading employees...")}</div>;
   }
   if (error) {
     return (
       <div style={{ margin: 32, color: "red" }}>
-        Failed to load employees. Please try again later.
+        {t("Failed to load employees. Please try again later.")}
       </div>
     );
   }
@@ -83,7 +89,7 @@ const EmployeesTable: React.FC = () => {
           justifyContent: "space-between",
         }}
       >
-        <h2>Employees</h2>
+        <h2>{t("Employees")}</h2>
         <button
           onClick={() => {
             setSelectedEmployee(null);
@@ -97,7 +103,7 @@ const EmployeesTable: React.FC = () => {
             borderRadius: 4,
           }}
         >
-          Add Employee
+          {t("Add Employee")}
         </button>
       </div>
       {showForm && (
@@ -109,7 +115,7 @@ const EmployeesTable: React.FC = () => {
       )}
       <div style={{ marginTop: 24 }}>
         <MaterialReactTable
-          columns={employeeTableColumns}
+          columns={columns}
           data={employees ?? []}
           enableColumnActions={false}
           enableColumnFilters={true}
@@ -121,12 +127,13 @@ const EmployeesTable: React.FC = () => {
           }}
           enableRowActions={true}
           positionActionsColumn="last"
+          localization={localization}
           renderRowActionMenuItems={({ row, closeMenu }) => [
             <MenuItem
               key="update"
               onClick={() => handleUpdate(row.original, closeMenu)}
             >
-              Update
+              {t("Update")}
             </MenuItem>,
             <MenuItem
               key="delete"
@@ -134,21 +141,27 @@ const EmployeesTable: React.FC = () => {
               disabled={isDeleting}
               sx={{ color: "#f44336" }}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? t("Deleting...") : t("Delete")}
             </MenuItem>,
           ]}
         />
       </div>
       <ConfirmationModal
         isOpen={confirmOpen}
-        message={`Are you sure you want to delete employee "${selectedEmployee?.firstName} ${selectedEmployee?.lastName}"?`}
+        message={
+          selectedEmployee
+            ? t('Are you sure you want to delete employee "{{name}}"?', {
+                name: `${selectedEmployee.firstName} ${selectedEmployee.lastName}`,
+              })
+            : ""
+        }
         onConfirm={confirmDelete}
         onCancel={() => {
           setConfirmOpen(false);
           setSelectedEmployee(null);
         }}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t("Delete")}
+        cancelText={t("Cancel")}
       />
     </div>
   );

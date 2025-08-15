@@ -8,8 +8,12 @@ import {
   type VipRestaurant,
 } from "../../reducer/vipRestaurantsApi.ts";
 import { ConfirmationModal } from "../../common/ConfirmationModal";
+import { useTranslation } from "react-i18next";
+import { useTableLocalization } from "../hooks/useTableLocalization.ts";
 
 const VipRestaurantsTable: React.FC = () => {
+  const { t } = useTranslation();
+  const localization = useTableLocalization();
   const {
     data: items = [],
     isLoading,
@@ -53,21 +57,23 @@ const VipRestaurantsTable: React.FC = () => {
   }, [deleteVipRestaurant, selectedRestaurant]);
 
   if (isLoading)
-    return <div style={{ margin: 32 }}>Loading restaurants...</div>;
+    return <div style={{ margin: 32 }}>{t("Loading restaurants...")}</div>;
   if (isError)
     return (
-      <div style={{ margin: 32, color: "red" }}>Error: {String(error)}</div>
+      <div style={{ margin: 32, color: "red" }}>
+        {t("Error")}: {String(error)}
+      </div>
     );
 
   const columns: MRT_ColumnDef<VipRestaurant>[] = [
     {
       accessorKey: "restaurant.name",
-      header: "Restaurant",
+      header: t("Restaurant"),
       Cell: ({ row }) => row.original.restaurant.name ?? "",
     },
     {
       accessorKey: "discount",
-      header: "Discount",
+      header: t("Discount"),
       Cell: ({ row }) => {
         const { generalDiscount } = row.original;
         if (generalDiscount !== null && generalDiscount !== undefined) {
@@ -77,9 +83,15 @@ const VipRestaurantsTable: React.FC = () => {
             row.original;
           return (
             <div>
-              <div>STANDARD: {STANDARD}%</div>
-              <div>VIP: {VIP}%</div>
-              <div>PREMIUM: {PREMIUM}%</div>
+              <div>
+                {t("STANDARD")}: {STANDARD}%
+              </div>
+              <div>
+                {t("VIP")}: {VIP}%
+              </div>
+              <div>
+                {t("PREMIUM")}: {PREMIUM}%
+              </div>
             </div>
           );
         }
@@ -96,7 +108,7 @@ const VipRestaurantsTable: React.FC = () => {
           justifyContent: "space-between",
         }}
       >
-        <h2>VIP Restaurants</h2>
+        <h2>{t("VIP Restaurants")}</h2>
         <button
           onClick={() => {
             setSelectedRestaurant(null);
@@ -110,7 +122,7 @@ const VipRestaurantsTable: React.FC = () => {
             borderRadius: 4,
           }}
         >
-          Add VIP Restaurant
+          {t("Add VIP Restaurant")}
         </button>
       </div>
       {showForm && (
@@ -136,36 +148,43 @@ const VipRestaurantsTable: React.FC = () => {
           }}
           enableRowActions
           positionActionsColumn="last"
+          localization={localization}
           renderRowActionMenuItems={({ row, closeMenu }) => [
             <MenuItem
               key="update"
               onClick={() => handleUpdate(row.original, closeMenu)}
-              aria-label="Update VIP Restaurant"
+              aria-label={t("Update VIP Restaurant")}
             >
-              Update
+              {t("Update")}
             </MenuItem>,
             <MenuItem
               key="delete"
               onClick={() => handleDelete(row.original, closeMenu)}
               disabled={isDeleting}
               sx={{ color: "#f44336" }}
-              aria-label="Delete VIP Restaurant"
+              aria-label={t("Delete VIP Restaurant")}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? t("Deleting...") : t("Delete")}
             </MenuItem>,
           ]}
         />
       </div>
       <ConfirmationModal
         isOpen={confirmOpen}
-        message={`Are you sure you want to delete VIP restaurant "${selectedRestaurant?.restaurant.name}"?`}
+        message={
+          selectedRestaurant
+            ? t('Are you sure you want to delete VIP restaurant "{{name}}"?', {
+                name: selectedRestaurant.restaurant.name,
+              })
+            : ""
+        }
         onConfirm={confirmDelete}
         onCancel={() => {
           setConfirmOpen(false);
           setSelectedRestaurant(null);
         }}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t("Delete")}
+        cancelText={t("Cancel")}
       />
     </div>
   );

@@ -9,6 +9,7 @@ import {
 import MobileSimulator from "./MobileSimulator.tsx";
 import GeneralConfigForm from "./GeneralConfigForm.tsx";
 import ChallengesConfig from "./ChallengesConfig.tsx";
+import { useTranslation } from "react-i18next";
 
 const defaultFontColor = "#222";
 const defaultBackgroundColor = "#ffffff";
@@ -16,6 +17,7 @@ const defaultHeaderAndButtonColor = "#bfa16b";
 const defaultDescription = "Vaši računi i lojalnost";
 
 const Config: React.FC = () => {
+  const { t } = useTranslation();
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const restaurantIdNumber = restaurantId ? Number(restaurantId) : undefined;
 
@@ -144,7 +146,7 @@ const Config: React.FC = () => {
             zIndex: 2,
           }}
         >
-          {viewMode ? "Edit" : "Preview"}
+          {viewMode ? t("Edit") : t("Preview")}
         </button>
         {/* Left: Main config and mobile preview */}
         <div style={{ flex: 2, minWidth: 0, display: "flex", gap: 32 }}>
@@ -164,7 +166,7 @@ const Config: React.FC = () => {
             }}
           >
             <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 700 }}>
-              Podešavanje restorana
+              {t("Restaurant Settings")}
             </h2>
             <GeneralConfigForm
               config={config}
@@ -208,12 +210,12 @@ const Config: React.FC = () => {
                 }}
                 disabled={isSaving}
               >
-                {isSaving ? "Saving..." : "Save"}
+                {isSaving ? t("Saving...") : t("Save")}
               </button>
             )}
             {isError && (
               <span style={{ color: "red", marginTop: 8 }}>
-                Error: {String(error)}
+                {t("Error")}: {String(error)}
               </span>
             )}
           </div>

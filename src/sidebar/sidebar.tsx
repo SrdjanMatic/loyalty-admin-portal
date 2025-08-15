@@ -1,10 +1,12 @@
 import { useKeycloak } from "@react-keycloak/web";
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import loyaltyLogo from "../assets/loyaltyLogo.jpg";
 
 const Sidebar: React.FC = () => {
+  const { t } = useTranslation();
   const { keycloak } = useKeycloak();
   const roles: string[] = keycloak?.tokenParsed?.realm_access?.roles || [];
   const restaurantId = keycloak?.tokenParsed?.restaurantId;
@@ -13,47 +15,47 @@ const Sidebar: React.FC = () => {
     {
       role: "Restaurant admin",
       path: "/dashboard",
-      label: "Dashboard",
+      label: t("Dashboard"),
     },
     {
       role: "System admin",
       path: "/dashboard",
-      label: "Dashboard",
+      label: t("Dashboard"),
     },
     {
       role: "System admin",
       path: "/vip-restaurants",
-      label: "Vip restaurants",
+      label: t("Vip restaurants"),
     },
     {
       role: "System admin",
       path: "/companies",
-      label: "Companies",
+      label: t("Companies"),
     },
     {
       role: "System admin",
       path: "/restaurants",
-      label: "Restaurants",
+      label: t("Restaurants"),
     },
     {
       role: "Restaurant admin",
       path: (restaurantId: string) => `/config/${restaurantId}`,
-      label: "Config",
+      label: t("Config"),
     },
     {
       role: "Restaurant admin",
       path: (restaurantId: string) => `/coupons/${restaurantId}`,
-      label: "Coupons",
+      label: t("Coupons"),
     },
     {
       role: "Restaurant admin",
       path: (restaurantId: string) => `/notification/${restaurantId}`,
-      label: "Notifications",
+      label: t("Notifications"),
     },
     {
       role: "System admin",
       path: "/restaurantAdmins",
-      label: "Restaurant Admins",
+      label: t("Restaurant Admins"),
     },
   ];
 
@@ -97,30 +99,6 @@ const Sidebar: React.FC = () => {
               </li>
             );
           })}
-          <li style={{ position: "absolute", bottom: 70 }}>
-            {!!keycloak.authenticated && (
-              <button
-                type="button"
-                style={{
-                  background: "#fff",
-                  color: "#23272f",
-                  border: "none",
-                  borderRadius: 4,
-                  padding: "8px 16px",
-                  cursor: "pointer",
-                  fontWeight: 600,
-                  marginLeft: 16,
-                }}
-                onClick={() => {
-                  keycloak.logout({
-                    redirectUri: window.location.origin + "/",
-                  });
-                }}
-              >
-                Logout
-              </button>
-            )}
-          </li>
         </ul>
       </nav>
     </div>

@@ -8,8 +8,12 @@ import {
   type RestaurantAdmin,
 } from "../../reducer/restaurantAdminApi";
 import { ConfirmationModal } from "../../common/ConfirmationModal";
+import { useTranslation } from "react-i18next";
+import { useTableLocalization } from "../hooks/useTableLocalization";
 
 const RestaurantAdminTable: React.FC = () => {
+  const { t } = useTranslation();
+  const localization = useTableLocalization();
   const [showForm, setShowForm] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<RestaurantAdmin | null>(
     null
@@ -53,32 +57,35 @@ const RestaurantAdminTable: React.FC = () => {
     } catch {}
   }, [deleteRestaurantAdmin, selectedAdmin]);
 
-  if (isLoading) return <div style={{ margin: 32 }}>Loading admins...</div>;
+  if (isLoading)
+    return <div style={{ margin: 32 }}>{t("Loading admins...")}</div>;
   if (isError)
     return (
-      <div style={{ margin: 32, color: "red" }}>Error: {String(error)}</div>
+      <div style={{ margin: 32, color: "red" }}>
+        {t("Error")}: {String(error)}
+      </div>
     );
 
   const columns: MRT_ColumnDef<RestaurantAdmin>[] = [
     {
       accessorKey: "username",
-      header: "Username",
+      header: t("Username"),
     },
     {
       accessorKey: "email",
-      header: "Email",
+      header: t("Email"),
     },
     {
       accessorKey: "firstName",
-      header: "First name",
+      header: t("First name"),
     },
     {
       accessorKey: "lastName",
-      header: "Last name",
+      header: t("Last name"),
     },
     {
       accessorKey: "restaurantName",
-      header: "Restaurant",
+      header: t("Restaurant"),
     },
   ];
 
@@ -91,7 +98,7 @@ const RestaurantAdminTable: React.FC = () => {
           justifyContent: "space-between",
         }}
       >
-        <h2>Restaurant Admin</h2>
+        <h2>{t("Restaurant Admin")}</h2>
         <button
           onClick={() => {
             setSelectedAdmin(null);
@@ -105,7 +112,7 @@ const RestaurantAdminTable: React.FC = () => {
             borderRadius: 4,
           }}
         >
-          Add Admin
+          {t("Add Admin")}
         </button>
       </div>
       {showForm && (
@@ -131,36 +138,43 @@ const RestaurantAdminTable: React.FC = () => {
           }}
           enableRowActions
           positionActionsColumn="last"
+          localization={localization}
           renderRowActionMenuItems={({ row, closeMenu }) => [
             <MenuItem
               key="update"
               onClick={() => handleUpdate(row.original, closeMenu)}
-              aria-label="Update Admin"
+              aria-label={t("Update Admin")}
             >
-              Update
+              {t("Update")}
             </MenuItem>,
             <MenuItem
               key="delete"
               onClick={() => handleDelete(row.original, closeMenu)}
               disabled={!!row.original.restaurantName}
               sx={{ color: "#f44336" }}
-              aria-label="Delete Admin"
+              aria-label={t("Delete Admin")}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? t("Deleting...") : t("Delete")}
             </MenuItem>,
           ]}
         />
       </div>
       <ConfirmationModal
         isOpen={confirmOpen}
-        message={`Are you sure you want to delete admin "${selectedAdmin?.username}"?`}
+        message={
+          selectedAdmin
+            ? t('Are you sure you want to delete admin "{{username}}"?', {
+                username: selectedAdmin.username,
+              })
+            : ""
+        }
         onConfirm={confirmDelete}
         onCancel={() => {
           setConfirmOpen(false);
           setSelectedAdmin(null);
         }}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t("Delete")}
+        cancelText={t("Cancel")}
       />
     </div>
   );

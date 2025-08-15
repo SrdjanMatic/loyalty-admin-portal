@@ -6,6 +6,7 @@ import {
   useCreateCompanyMutation,
   useUpdateCompanyMutation,
 } from "../../reducer/companyApi";
+import { useTranslation } from "react-i18next";
 
 interface UpsertCompanyFormProps {
   onClose?: () => void;
@@ -16,18 +17,19 @@ interface FormState {
   name: string;
 }
 
-const validationSchema = Yup.object().shape({
-  name: Yup.string().required("Company name is required"),
-});
-
 export const UpsertCompanyForm: React.FC<UpsertCompanyFormProps> = ({
   onClose,
   company = null,
 }) => {
+  const { t } = useTranslation();
   const [createCompany] = useCreateCompanyMutation();
   const [updateCompany] = useUpdateCompanyMutation();
 
   const isEdit = !!company;
+
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required(t("Company name is required")),
+  });
 
   const formik = useFormik<FormState>({
     initialValues: { name: company?.name || "" },
@@ -89,13 +91,13 @@ export const UpsertCompanyForm: React.FC<UpsertCompanyFormProps> = ({
             fontSize: 22,
             cursor: "pointer",
           }}
-          aria-label="Close"
+          aria-label={t("Close")}
         >
           &times;
         </button>
 
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          {isEdit ? "Update Company" : "Add Company"}
+          {isEdit ? t("Update Company") : t("Add Company")}
         </h2>
 
         <div style={{ marginBottom: 20 }}>
@@ -103,13 +105,13 @@ export const UpsertCompanyForm: React.FC<UpsertCompanyFormProps> = ({
             htmlFor="name"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Company Name
+            {t("Company Name")}
           </label>
           <input
             id="name"
             name="name"
             type="text"
-            placeholder="Enter company name"
+            placeholder={t("Enter company name")}
             value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -142,7 +144,7 @@ export const UpsertCompanyForm: React.FC<UpsertCompanyFormProps> = ({
               fontWeight: 500,
             }}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="submit"
@@ -159,11 +161,11 @@ export const UpsertCompanyForm: React.FC<UpsertCompanyFormProps> = ({
           >
             {formik.isSubmitting
               ? isEdit
-                ? "Updating..."
-                : "Saving..."
+                ? t("Updating...")
+                : t("Saving...")
               : isEdit
-              ? "Update"
-              : "Save"}
+              ? t("Update")
+              : t("Save")}
           </button>
         </div>
       </form>

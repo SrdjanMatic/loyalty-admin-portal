@@ -7,8 +7,12 @@ import {
   useGetRestaurantsQuery,
   type Restaurant,
 } from "../../reducer/restaurantsApi.ts";
+import { useTranslation } from "react-i18next";
+import { useTableLocalization } from "../hooks/useTableLocalization.ts";
 
 const RestaurantsTable: React.FC = () => {
+  const { t } = useTranslation();
+  const localization = useTableLocalization();
   const {
     data: restaurants = [],
     isLoading,
@@ -32,28 +36,28 @@ const RestaurantsTable: React.FC = () => {
   const columns: MRT_ColumnDef<Restaurant>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("Name"),
     },
     {
       accessorKey: "address",
-      header: "Address",
+      header: t("Address"),
     },
     {
       accessorKey: "phone",
-      header: "Phone",
+      header: t("Phone"),
     },
     {
       accessorKey: "pib",
-      header: "Pib",
+      header: t("PIB"),
     },
     {
       accessorKey: "coupons",
-      header: "Coupons",
+      header: t("Coupons"),
       Cell: ({ row }) => (
-        <Link to={`/coupons/${row.original.id}`} title="View Coupons">
+        <Link to={`/coupons/${row.original.id}`} title={t("View Coupons")}>
           <span
             role="img"
-            aria-label="magnifier"
+            aria-label={t("magnifier")}
             style={{ fontSize: 20, cursor: "pointer" }}
           >
             🔍
@@ -66,10 +70,12 @@ const RestaurantsTable: React.FC = () => {
   ];
 
   if (isLoading)
-    return <div style={{ margin: 32 }}>Loading restaurants...</div>;
+    return <div style={{ margin: 32 }}>{t("Loading restaurants...")}</div>;
   if (isError)
     return (
-      <div style={{ margin: 32, color: "red" }}>Error: {String(error)}</div>
+      <div style={{ margin: 32, color: "red" }}>
+        {t("Error")}: {String(error)}
+      </div>
     );
 
   return (
@@ -81,7 +87,7 @@ const RestaurantsTable: React.FC = () => {
           justifyContent: "space-between",
         }}
       >
-        <h2>Restaurants</h2>
+        <h2>{t("Restaurants")}</h2>
         <button
           onClick={() => {
             setSelectedRestaurant(null);
@@ -95,7 +101,7 @@ const RestaurantsTable: React.FC = () => {
             borderRadius: 4,
           }}
         >
-          Add Restaurant
+          {t("Add Restaurant")}
         </button>
       </div>
       {showForm && (
@@ -121,13 +127,14 @@ const RestaurantsTable: React.FC = () => {
           }}
           enableRowActions
           positionActionsColumn="last"
+          localization={localization}
           renderRowActionMenuItems={({ row, closeMenu }) => [
             <MenuItem
               key="update"
               onClick={() => handleUpdate(row.original, closeMenu)}
-              aria-label="Update Restaurant"
+              aria-label={t("Update Restaurant")}
             >
-              Update
+              {t("Update")}
             </MenuItem>,
           ]}
         />

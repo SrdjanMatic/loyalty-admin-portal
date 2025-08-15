@@ -1,6 +1,7 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useTranslation } from "react-i18next";
 
 export interface RestaurantCouponLevelView {
   premiumCouponLimit: number;
@@ -13,24 +14,26 @@ interface EditCouponLimitProps {
   onSubmit: (values: RestaurantCouponLevelView) => Promise<void> | void;
 }
 
-const validationSchema = Yup.object().shape({
-  premiumCouponLimit: Yup.number()
-    .typeError("Must be a number")
-    .integer("Must be an integer")
-    .min(0, "Must be at least 0")
-    .required("Required"),
-  vipCouponLimit: Yup.number()
-    .typeError("Must be a number")
-    .integer("Must be an integer")
-    .min(0, "Must be at least 0")
-    .required("Required"),
-});
-
 export const EditCouponLimit: React.FC<EditCouponLimitProps> = ({
   initialValues,
   onClose,
   onSubmit,
 }) => {
+  const { t } = useTranslation();
+
+  const validationSchema = Yup.object().shape({
+    premiumCouponLimit: Yup.number()
+      .typeError(t("Must be a number"))
+      .integer(t("Must be an integer"))
+      .min(0, t("Must be at least 0"))
+      .required(t("Required")),
+    vipCouponLimit: Yup.number()
+      .typeError(t("Must be a number"))
+      .integer(t("Must be an integer"))
+      .min(0, t("Must be at least 0"))
+      .required(t("Required")),
+  });
+
   const formik = useFormik<RestaurantCouponLevelView>({
     initialValues,
     validationSchema,
@@ -83,12 +86,12 @@ export const EditCouponLimit: React.FC<EditCouponLimitProps> = ({
             fontSize: 22,
             cursor: "pointer",
           }}
-          aria-label="Close"
+          aria-label={t("Close")}
         >
           &times;
         </button>
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          Edit Coupon Limits
+          {t("Edit Coupon Limits")}
         </h2>
 
         <div style={{ marginBottom: 20 }}>
@@ -96,7 +99,7 @@ export const EditCouponLimit: React.FC<EditCouponLimitProps> = ({
             htmlFor="premiumCouponLimit"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Premium Coupon Limit
+            {t("Premium Coupon Limit")}
           </label>
           <input
             id="premiumCouponLimit"
@@ -128,7 +131,7 @@ export const EditCouponLimit: React.FC<EditCouponLimitProps> = ({
             htmlFor="vipCouponLimit"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            VIP Coupon Limit
+            {t("VIP Coupon Limit")}
           </label>
           <input
             id="vipCouponLimit"
@@ -167,7 +170,7 @@ export const EditCouponLimit: React.FC<EditCouponLimitProps> = ({
               fontWeight: 500,
             }}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="submit"
@@ -182,7 +185,7 @@ export const EditCouponLimit: React.FC<EditCouponLimitProps> = ({
               fontWeight: 500,
             }}
           >
-            {formik.isSubmitting ? "Saving..." : "Save"}
+            {formik.isSubmitting ? t("Saving...") : t("Save")}
           </button>
         </div>
       </form>

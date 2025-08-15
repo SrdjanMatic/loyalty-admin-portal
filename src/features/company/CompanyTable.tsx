@@ -6,14 +6,20 @@ import {
   useDeleteCompanyMutation,
   type Company,
 } from "../../reducer/companyApi";
-import { companyTableColumns } from "./CompanyTableColumns";
+import { useCompanyTableColumns } from "./CompanyTableColumns";
 import { UpsertCompanyForm } from "./UpsertCompanyForm";
 import { ConfirmationModal } from "../../common/ConfirmationModal";
+import { useTranslation } from "react-i18next";
+import { useTableLocalization } from "../hooks/useTableLocalization";
 
 const CompanyTable: React.FC = () => {
+  const { t } = useTranslation();
+  const localization = useTableLocalization();
   const [showForm, setShowForm] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const columns = useCompanyTableColumns();
 
   const {
     data: items = [],
@@ -42,7 +48,6 @@ const CompanyTable: React.FC = () => {
     },
     []
   );
-
   const confirmDelete = useCallback(async () => {
     if (!selectedCompany) return;
     try {
@@ -54,10 +59,13 @@ const CompanyTable: React.FC = () => {
     }
   }, [deleteCompany, selectedCompany]);
 
-  if (isLoading) return <div style={{ margin: 32 }}>Loading companies...</div>;
+  if (isLoading)
+    return <div style={{ margin: 32 }}>{t("Loading companies...")}</div>;
   if (isError)
     return (
-      <div style={{ margin: 32, color: "red" }}>Error: {String(error)}</div>
+      <div style={{ margin: 32, color: "red" }}>
+        {t("Error")}: {String(error)}
+      </div>
     );
 
   return (
@@ -69,7 +77,7 @@ const CompanyTable: React.FC = () => {
           justifyContent: "space-between",
         }}
       >
-        <h2>Companies</h2>
+        <h2>{t("Companies")}</h2>
         <button
           onClick={() => {
             setSelectedCompany(null);
@@ -84,9 +92,9 @@ const CompanyTable: React.FC = () => {
             fontWeight: 500,
             cursor: "pointer",
           }}
-          aria-label="Add Company"
+          aria-label={t("Add Company")}
         >
-          Add Company
+          {t("Add Company")}
         </button>
       </div>
       {showForm && (
@@ -97,7 +105,7 @@ const CompanyTable: React.FC = () => {
       )}
       <div style={{ marginTop: 24 }}>
         <MaterialReactTable
-          columns={companyTableColumns}
+          columns={columns}
           data={items}
           enableColumnActions={false}
           enableColumnFilters={true}
@@ -109,36 +117,43 @@ const CompanyTable: React.FC = () => {
           }}
           enableRowActions
           positionActionsColumn="last"
+          localization={localization}
           renderRowActionMenuItems={({ row, closeMenu }) => [
             <MenuItem
               key="update"
               onClick={() => handleUpdate(row.original, closeMenu)}
-              aria-label="Update Company"
+              aria-label={t("Update Company")}
             >
-              Update
+              {t("Update")}
             </MenuItem>,
             <MenuItem
               key="delete"
               onClick={() => handleDelete(row.original, closeMenu)}
               disabled={isDeleting}
               sx={{ color: "#f44336" }}
-              aria-label="Delete Company"
+              aria-label={t("Delete Company")}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? t("Deleting...") : t("Delete")}
             </MenuItem>,
           ]}
         />
       </div>
       <ConfirmationModal
         isOpen={confirmOpen}
-        message={`Are you sure you want to delete company "${selectedCompany?.name}"?`}
+        message={
+          selectedCompany
+            ? t('Are you sure you want to delete company "{{name}}"?', {
+                name: selectedCompany.name,
+              })
+            : ""
+        }
         onConfirm={confirmDelete}
         onCancel={() => {
           setConfirmOpen(false);
           setSelectedCompany(null);
         }}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t("Delete")}
+        cancelText={t("Cancel")}
       />
     </div>
   );

@@ -7,6 +7,7 @@ import {
   useUpdateCouponMutation,
   type Coupon,
 } from "../../reducer/couponsApi.ts";
+import { useTranslation } from "react-i18next";
 
 interface UpsertCouponFormProps {
   restaurantId: number;
@@ -23,29 +24,30 @@ interface FormState {
   level: CouponLevel;
 }
 
-const validationSchema = Yup.object().shape({
-  name: Yup.string().required("Coupon name is required"),
-  description: Yup.string().required("Coupon description is required"),
-  points: Yup.number()
-    .typeError("Points must be a number")
-    .integer("Points must be an integer")
-    .min(1, "Points must be at least 1")
-    .required("Points are required"),
-  level: Yup.string()
-    .oneOf(["STANDARD", "PREMIUM", "VIP"], "Level is required")
-    .required("Level is required"),
-});
-
 export const UpsertCouponForm: React.FC<UpsertCouponFormProps> = ({
   restaurantId,
   coupon = null,
   onClose,
   onCreated,
 }) => {
+  const { t } = useTranslation();
   const [createCoupon, { isLoading: isCreating }] = useCreateCouponMutation();
   const [updateCoupon, { isLoading: isUpdating }] = useUpdateCouponMutation();
 
   const isEdit = !!coupon;
+
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required(t("Coupon name is required")),
+    description: Yup.string().required(t("Coupon description is required")),
+    points: Yup.number()
+      .typeError(t("Points must be a number"))
+      .integer(t("Points must be an integer"))
+      .min(1, t("Points must be at least 1"))
+      .required(t("Points are required")),
+    level: Yup.string()
+      .oneOf(["STANDARD", "PREMIUM", "VIP"], t("Level is required"))
+      .required(t("Level is required")),
+  });
 
   const formik = useFormik<FormState>({
     initialValues: {
@@ -114,12 +116,12 @@ export const UpsertCouponForm: React.FC<UpsertCouponFormProps> = ({
             fontSize: 22,
             cursor: "pointer",
           }}
-          aria-label="Close"
+          aria-label={t("Close")}
         >
           &times;
         </button>
         <h2 style={{ marginTop: 0, marginBottom: 24, fontWeight: 600 }}>
-          {isEdit ? "Update Coupon" : "Add Coupon"}
+          {isEdit ? t("Update Coupon") : t("Add Coupon")}
         </h2>
 
         {/* Name Field */}
@@ -128,13 +130,13 @@ export const UpsertCouponForm: React.FC<UpsertCouponFormProps> = ({
             htmlFor="name"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Name
+            {t("Name")}
           </label>
           <input
             id="name"
             name="name"
             type="text"
-            placeholder="Enter name"
+            placeholder={t("Enter name")}
             value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -160,13 +162,13 @@ export const UpsertCouponForm: React.FC<UpsertCouponFormProps> = ({
             htmlFor="description"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Description
+            {t("Description")}
           </label>
           <input
             id="description"
             name="description"
             type="text"
-            placeholder="Enter description"
+            placeholder={t("Enter description")}
             value={formik.values.description}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -192,13 +194,13 @@ export const UpsertCouponForm: React.FC<UpsertCouponFormProps> = ({
             htmlFor="points"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Points
+            {t("Points")}
           </label>
           <input
             id="points"
             name="points"
             type="number"
-            placeholder="Enter points"
+            placeholder={t("Enter points")}
             value={formik.values.points}
             onChange={(e) => {
               const val = e.target.value;
@@ -231,7 +233,7 @@ export const UpsertCouponForm: React.FC<UpsertCouponFormProps> = ({
             htmlFor="level"
             style={{ display: "block", fontWeight: 500, marginBottom: 6 }}
           >
-            Level
+            {t("Level")}
           </label>
           <select
             id="level"
@@ -248,9 +250,9 @@ export const UpsertCouponForm: React.FC<UpsertCouponFormProps> = ({
               boxSizing: "border-box",
             }}
           >
-            <option value="STANDARD">STANDARD</option>
-            <option value="PREMIUM">PREMIUM</option>
-            <option value="VIP">VIP</option>
+            <option value="STANDARD">{t("Standard")}</option>
+            <option value="PREMIUM">{t("Premium")}</option>
+            <option value="VIP">{t("VIP")}</option>
           </select>
           {formik.touched.level && formik.errors.level && (
             <div style={{ color: "red", marginTop: 6, fontSize: 12 }}>
@@ -272,7 +274,7 @@ export const UpsertCouponForm: React.FC<UpsertCouponFormProps> = ({
               fontWeight: 500,
             }}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="submit"
@@ -289,11 +291,11 @@ export const UpsertCouponForm: React.FC<UpsertCouponFormProps> = ({
           >
             {formik.isSubmitting || isCreating || isUpdating
               ? isEdit
-                ? "Updating..."
-                : "Saving..."
+                ? t("Updating...")
+                : t("Saving...")
               : isEdit
-              ? "Update"
-              : "Save"}
+              ? t("Update")
+              : t("Save")}
           </button>
         </div>
       </form>

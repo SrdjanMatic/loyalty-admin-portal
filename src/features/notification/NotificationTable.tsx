@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import { CreateNotificationForm } from "./CreateNotificationForm";
 import { useParams } from "react-router-dom";
 import { MaterialReactTable, type MRT_ColumnDef } from "material-react-table";
@@ -7,8 +6,12 @@ import {
   useGetNotificationsQuery,
   type Notification,
 } from "../../reducer/notificationApi";
+import { useTranslation } from "react-i18next";
+import { useTableLocalization } from "../hooks/useTableLocalization";
 
 const NotificationTable: React.FC = () => {
+  const { t } = useTranslation();
+  const localization = useTableLocalization();
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const {
     data: notifications = [],
@@ -19,32 +22,34 @@ const NotificationTable: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
 
   if (isLoading)
-    return <div style={{ margin: 32 }}>Loading notifications...</div>;
+    return <div style={{ margin: 32 }}>{t("Loading notifications...")}</div>;
   if (isError)
     return (
-      <div style={{ margin: 32, color: "red" }}>Error: {String(error)}</div>
+      <div style={{ margin: 32, color: "red" }}>
+        {t("Error")}: {String(error)}
+      </div>
     );
 
   const columns: MRT_ColumnDef<Notification>[] = [
     {
       accessorKey: "title",
-      header: "Title",
+      header: t("Title"),
     },
     {
       accessorKey: "foodType",
-      header: "Food Types",
+      header: t("Food Types"),
     },
     {
       accessorKey: "partOfDay",
-      header: "Parts of Day",
+      header: t("Parts of Day"),
     },
     {
       accessorKey: "validFrom",
-      header: "Valid From",
+      header: t("Valid From"),
     },
     {
       accessorKey: "validUntil",
-      header: "Valid Until",
+      header: t("Valid Until"),
     },
   ];
 
@@ -57,7 +62,7 @@ const NotificationTable: React.FC = () => {
           justifyContent: "space-between",
         }}
       >
-        <h2>Notification</h2>
+        <h2>{t("Notification")}</h2>
         <button
           onClick={() => setShowForm((v) => !v)}
           style={{
@@ -68,7 +73,7 @@ const NotificationTable: React.FC = () => {
             borderRadius: 4,
           }}
         >
-          Add notification
+          {t("Add notification")}
         </button>
       </div>
       {showForm && (
@@ -86,6 +91,7 @@ const NotificationTable: React.FC = () => {
             elevation: 0,
             sx: { borderRadius: 2 },
           }}
+          localization={localization}
         />
       </div>
     </div>
