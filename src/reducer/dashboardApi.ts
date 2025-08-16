@@ -19,7 +19,7 @@ export const dashboardApi = createApi({
   endpoints: (builder) => ({
     getDashboardStatistic: builder.query<DashboardStatistic, number>({
       query: (restaurantId) => `/dashboards/${restaurantId}`,
-      providesTags: (result, error, restaurantId) => [
+      providesTags: (_result, _error, restaurantId) => [
         { type: QUERY_TAGS.DASHBOARD, id: restaurantId },
       ],
     }),

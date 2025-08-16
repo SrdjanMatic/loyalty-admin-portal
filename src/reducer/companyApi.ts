@@ -44,7 +44,7 @@ export const companyApi = createApi({
         method: "PUT",
         body: patch,
       }),
-      async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {
           const { data: updatedCompany } = await queryFulfilled;
           dispatch(

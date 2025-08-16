@@ -3,11 +3,13 @@ import { customBaseQuery } from "./customBaseQuery";
 import { QUERY_TAGS } from "./tagConstants";
 import { setSuccess } from "./toastSlice";
 
-export enum CouponLevel {
-  STANDARD = "STANDARD",
-  VIP = "VIP",
-  PREMIUM = "PREMIUM",
-}
+export const COUPON_LEVELS = {
+  STANDARD: "STANDARD",
+  VIP: "VIP",
+  PREMIUM: "PREMIUM",
+} as const;
+
+export type CouponLevel = (typeof COUPON_LEVELS)[keyof typeof COUPON_LEVELS];
 
 export interface Coupon {
   id: number;
@@ -86,7 +88,7 @@ export const couponsApi = createApi({
         method: "POST",
         body: coupon,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data: newCoupon }: any = await queryFulfilled;
 

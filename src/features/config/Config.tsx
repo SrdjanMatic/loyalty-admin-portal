@@ -23,7 +23,6 @@ const Config: React.FC = () => {
 
   const {
     data: configData,
-    isLoading,
     isError,
     error,
   } = useGetRestaurantConfigQuery(restaurantIdNumber, {

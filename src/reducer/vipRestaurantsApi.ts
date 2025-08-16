@@ -1,7 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { customBaseQuery } from "./customBaseQuery";
 import { QUERY_TAGS } from "./tagConstants";
-import type { Restaurant } from "./restaurantsApi";
 import { setSuccess } from "./toastSlice";
 
 interface RestaurantView {
@@ -65,7 +64,7 @@ export const vipRestaurantsApi = createApi({
         method: "POST",
         body: newRestaurant,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data: newVip } = await queryFulfilled;
           dispatch(

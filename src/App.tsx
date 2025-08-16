@@ -18,12 +18,11 @@ import NotificationTable from "./features/notification/NotificationTable.tsx";
 import RestaurantAdminTable from "./features/restaurantAdmins/RestaurantAdminTable.tsx";
 import { ToastSnackbar } from "./features/errors/ToastSnackbar.tsx";
 import { useTranslation } from "react-i18next";
-import i18n from "./i18n.ts";
 import Header from "./features/header/Header.tsx";
 
 const App: React.FC = () => {
   const { keycloak, initialized } = useKeycloak();
-  const { i18n, t } = useTranslation();
+  const { i18n } = useTranslation();
 
   const roles: string[] = keycloak?.tokenParsed?.realm_access?.roles || [];
   const username: string | undefined =

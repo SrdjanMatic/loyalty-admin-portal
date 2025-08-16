@@ -2,10 +2,11 @@ import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
-  CouponLevel,
+  type CouponLevel,
   useCreateCouponMutation,
   useUpdateCouponMutation,
   type Coupon,
+  COUPON_LEVELS,
 } from "../../reducer/couponsApi.ts";
 import { useTranslation } from "react-i18next";
 
@@ -55,7 +56,7 @@ export const UpsertCouponForm: React.FC<UpsertCouponFormProps> = ({
       description: coupon?.description ?? "",
       points: coupon?.points ?? 0,
       restaurantId: coupon?.restaurantId ?? restaurantId,
-      level: coupon?.level ?? CouponLevel.STANDARD,
+      level: coupon?.level ?? COUPON_LEVELS.STANDARD,
     },
     enableReinitialize: true,
     validationSchema,

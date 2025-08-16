@@ -77,7 +77,7 @@ export const restaurantAdminApi = createApi({
         method: "POST",
         body: admin,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data: newAdmin } = await queryFulfilled;
           dispatch(

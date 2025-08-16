@@ -31,7 +31,7 @@ export const restaurantsApi = createApi({
         method: "POST",
         body: restaurant,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data: newRestaurant } = await queryFulfilled;
           dispatch(

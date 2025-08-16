@@ -1,5 +1,5 @@
 import type { MRT_ColumnDef } from "material-react-table";
-import { Employee } from "../../reducer/employeeApi";
+import type { Employee } from "../../reducer/employeeApi";
 import { useTranslation } from "react-i18next";
 
 export const useEmployeeTableColumns = (): MRT_ColumnDef<Employee>[] => {

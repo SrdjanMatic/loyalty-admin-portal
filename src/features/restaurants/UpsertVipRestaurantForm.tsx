@@ -5,7 +5,7 @@ import { useGetRestaurantsQuery } from "../../reducer/restaurantsApi";
 import {
   useCreateVipRestaurantMutation,
   useUpdateVipRestaurantMutation,
-  VipRestaurant,
+  type VipRestaurant,
 } from "../../reducer/vipRestaurantsApi";
 import { useTranslation } from "react-i18next";
 

@@ -45,12 +45,7 @@ export const UpsertRestaurantForm: React.FC<UpsertRestaurantFormProps> = ({
   const [updateRestaurant, { isLoading: isUpdating }] =
     useUpdateRestaurantMutation();
 
-  const {
-    data: items = [],
-    isLoading: isAdminsLoading,
-    isError: isAdminsError,
-    error: adminsError,
-  } = useGetRestaurantAdminsQuery();
+  const { data: items = [] } = useGetRestaurantAdminsQuery();
 
   const isEdit = !!restaurant;
 

@@ -159,11 +159,6 @@ const CouponsTable: React.FC = () => {
     setSelectedCoupon(null);
   };
 
-  const handleUpdate = useCallback(() => {
-    setShowForm(true);
-    setAnchorEl(null);
-  }, []);
-
   const handleDelete = useCallback(async () => {
     if (!selectedCoupon) return;
     await deleteCoupon({

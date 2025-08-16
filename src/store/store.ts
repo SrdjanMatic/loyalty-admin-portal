@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { employeesApi } from "../reducer/employeeApi.ts";
-import restaurantConfigReducer from "../reducer/configSlice.ts";
 import toastSlice from "../reducer/toastSlice.ts";
 import { dashboardApi } from "../reducer/dashboardApi.ts";
 import { companyApi } from "../reducer/companyApi.ts";
@@ -21,7 +20,6 @@ export const store = configureStore({
     [vipRestaurantsApi.reducerPath]: vipRestaurantsApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [restaurantAdminApi.reducerPath]: restaurantAdminApi.reducer,
-    // restaurantConfig: restaurantConfigReducer,
     [configApi.reducerPath]: configApi.reducer,
     toast: toastSlice,
     [restaurantsApi.reducerPath]: restaurantsApi.reducer,

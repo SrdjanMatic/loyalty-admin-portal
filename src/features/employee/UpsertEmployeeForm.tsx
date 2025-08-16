@@ -2,7 +2,7 @@ import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
-  Employee,
+  type Employee,
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
 } from "../../reducer/employeeApi";

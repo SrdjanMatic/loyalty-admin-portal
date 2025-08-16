@@ -22,7 +22,6 @@ const RestaurantsTable: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<Restaurant | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleUpdate = useCallback(
     (restaurant: Restaurant, closeMenu: () => void) => {

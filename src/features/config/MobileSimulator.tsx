@@ -24,7 +24,6 @@ const MobileSimulator: React.FC<MobileSimulatorProps> = ({
     description,
     logo,
     backgroundImage,
-    challengeList,
   },
 }) => {
   const { t } = useTranslation();

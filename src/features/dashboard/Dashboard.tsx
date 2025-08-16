@@ -22,11 +22,8 @@ export const Dashboard: React.FC = () => {
   const restaurantId = keycloak?.tokenParsed?.restaurantId;
 
   // Fetch restaurants with RTK Query
-  const {
-    data: restaurants = [],
-    error: restaurantsError,
-    isLoading: isRestaurantsLoading,
-  } = useGetRestaurantsQuery();
+  const { data: restaurants = [], isLoading: isRestaurantsLoading } =
+    useGetRestaurantsQuery();
 
   const [selectedId, setSelectedId] = useState<number | undefined>(undefined);
 
@@ -40,13 +37,12 @@ export const Dashboard: React.FC = () => {
     }
   }, [isSystemAdmin, restaurants, selectedId]);
 
-  const {
-    data: dashboardStats,
-    isLoading: isDashboardLoading,
-    error: dashboardError,
-  } = useGetDashboardStatisticQuery(effectiveRestaurantId!, {
-    skip: !effectiveRestaurantId,
-  });
+  const { data: dashboardStats } = useGetDashboardStatisticQuery(
+    effectiveRestaurantId!,
+    {
+      skip: !effectiveRestaurantId,
+    }
+  );
 
   const foodPreferences = Object.entries(
     dashboardStats?.foodPreferencesMap || {}

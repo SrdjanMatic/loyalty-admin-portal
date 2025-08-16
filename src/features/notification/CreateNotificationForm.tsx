@@ -1,5 +1,4 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useParams } from "react-router-dom";
@@ -31,10 +30,9 @@ export const CreateNotificationForm: React.FC<{ onClose?: () => void }> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch<any>();
   const { restaurantId } = useParams();
 
-  const [createNotification, { isLoading }] = useCreateNotificationMutation();
+  const [createNotification] = useCreateNotificationMutation();
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required(t("Title is required")),
